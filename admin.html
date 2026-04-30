@@ -4,297 +4,162 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ad Manager Pro</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --text: #111827;
+      --text-secondary: #6b7280;
+      --border: #e5e7eb;
+      --bg: #ffffff;
+      --bg-light: #f9fafb;
+      --shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
+      --shadow-lg: 0 4px 6px rgba(0,0,0,0.05), 0 2px 4px rgba(0,0,0,0.04);
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-      background: #f5f7fa;
-      min-height: 100vh;
-      padding: 24px;
-      color: #2d3748;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height:100vh;
+      padding:24px;
     }
-    .container {
-      max-width: 1280px;
-      margin: 0 auto;
-      background: #ffffff;
-      border-radius: 12px;
-      padding: 32px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-      border: 1px solid #e2e8f0;
-    }
+    .container { max-width:1280px; margin:0 auto; }
+    
     .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 32px;
-      padding-bottom: 24px;
-      border-bottom: 1px solid #e2e8f0;
-      flex-wrap: wrap;
-      gap: 16px;
+      display:flex; justify-content:space-between; align-items:center;
+      margin-bottom:32px; padding-bottom:24px; border-bottom:1px solid var(--border);
+      flex-wrap:wrap; gap:16px;
     }
-    .header h1 {
-      font-size: 28px;
-      font-weight: 700;
-      color: #1a202c;
-    }
-    .header-subtitle {
-      color: #718096;
-      font-size: 14px;
-      margin-top: 4px;
-    }
+    .header h1 { font-size:28px; font-weight:700; display:flex; align-items:center; gap:10px; }
+    .header h1 i { color: var(--primary); }
     .time-badge {
-      background: #edf2f7;
-      padding: 10px 16px;
-      border-radius: 8px;
-      font-size: 13px;
-      color: #4a5568;
-      border: 1px solid #e2e8f0;
-    }
-    .time-badge strong {
-      color: #2d3748;
+      background: var(--bg-light); padding:10px 16px; border-radius:8px;
+      font-size:13px; color: var(--text-secondary); border:1px solid var(--border);
+      display:flex; align-items:center; gap:8px;
     }
     
-    .section {
-      margin-bottom: 32px;
-    }
+    .section { margin-bottom:32px; }
     .section-title {
-      font-size: 18px;
-      font-weight: 600;
-      color: #1a202c;
-      margin-bottom: 16px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
+      font-size:18px; font-weight:600; margin-bottom:16px;
+      display:flex; align-items:center; gap:8px; color: var(--text);
     }
     
-    .form-card {
-      background: #f7fafc;
-      padding: 24px;
-      border-radius: 8px;
-      border: 1px solid #e2e8f0;
+    .card {
+      background: var(--bg); border:1px solid var(--border);
+      border-radius:10px; padding:24px; box-shadow: var(--shadow);
     }
     .form-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 16px;
+      display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:16px;
     }
-    .form-group { margin: 8px 0; }
+    .form-group { margin:8px 0; }
     label {
-      display: block;
-      margin-bottom: 6px;
-      font-weight: 500;
-      color: #4a5568;
-      font-size: 13px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
+      display:block; margin-bottom:6px; font-weight:500; color: var(--text-secondary);
+      font-size:13px; text-transform:uppercase; letter-spacing:0.5px;
     }
     input, select {
-      width: 100%;
-      padding: 10px 14px;
-      border: 1px solid #e2e8f0;
-      border-radius: 6px;
-      font-size: 14px;
-      color: #2d3748;
-      background: #ffffff;
+      width:100%; padding:10px 14px; border:1px solid var(--border); border-radius:6px;
+      font-size:14px; color: var(--text); background: var(--bg-light);
       transition: all 0.2s;
     }
     input:focus, select:focus {
-      border-color: #667eea;
-      outline: none;
-      box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+      border-color: var(--primary); outline:none;
+      box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
+      background: #fff;
     }
+    
     .btn {
-      padding: 10px 20px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 14px;
-      font-weight: 600;
-      margin: 4px;
-      transition: all 0.2s;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
+      padding:10px 18px; border:none; border-radius:6px; cursor:pointer;
+      font-size:14px; font-weight:600; transition:all 0.2s;
+      display:inline-flex; align-items:center; gap:6px;
     }
-    .btn-primary {
-      background: #667eea;
-      color: white;
-    }
-    .btn-primary:hover {
-      background: #5a67d8;
-    }
-    .btn-success {
-      background: #48bb78;
-      color: white;
-    }
-    .btn-success:hover {
-      background: #38a169;
-    }
-    .btn-warning {
-      background: #ed8936;
-      color: white;
-    }
-    .btn-warning:hover {
-      background: #dd6b20;
-    }
-    .btn-danger {
-      background: #fc8181;
-      color: white;
-    }
-    .btn-danger:hover {
-      background: #f56565;
-    }
-    .btn-sm {
-      padding: 6px 12px;
-      font-size: 12px;
-    }
+    .btn-primary { background:var(--primary); color:#fff; }
+    .btn-primary:hover { background:var(--primary-hover); transform:translateY(-1px); }
+    .btn-success { background:var(--success); color:#fff; }
+    .btn-success:hover { background:#059669; }
+    .btn-warning { background:var(--warning); color:#fff; }
+    .btn-warning:hover { background:#d97706; }
+    .btn-danger { background:var(--danger); color:#fff; }
+    .btn-danger:hover { background:#dc2626; }
+    .btn-sm { padding:6px 10px; font-size:12px; }
     
     .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-      gap: 16px;
-      margin-bottom: 32px;
+      display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:16px; margin-bottom:32px;
     }
     .stat-card {
-      background: #ffffff;
-      padding: 20px;
-      border-radius: 8px;
-      border: 1px solid #e2e8f0;
-      text-align: center;
+      background:var(--bg); border:1px solid var(--border); border-radius:8px;
+      padding:16px; text-align:center; box-shadow:var(--shadow);
     }
-    .stat-value {
-      font-size: 32px;
-      font-weight: 700;
-      color: #667eea;
-      line-height: 1;
-    }
-    .stat-label {
-      color: #718096;
-      font-size: 12px;
-      margin-top: 8px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
+    .stat-value { font-size:28px; font-weight:700; color:var(--primary); line-height:1; }
+    .stat-label { color:var(--text-secondary); font-size:12px; margin-top:6px; text-transform:uppercase; letter-spacing:0.5px; }
     
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 14px;
-    }
+    table { width:100%; border-collapse:collapse; font-size:14px; }
     th {
-      background: #f7fafc;
-      color: #4a5568;
-      padding: 12px;
-      text-align: left;
-      font-weight: 600;
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      border-bottom: 2px solid #e2e8f0;
+      background:var(--bg-light); color:var(--text-secondary); padding:12px;
+      text-align:left; font-weight:600; font-size:12px; text-transform:uppercase;
+      letter-spacing:0.5px; border-bottom:1px solid var(--border);
     }
-    td {
-      padding: 14px 12px;
-      border-bottom: 1px solid #edf2f7;
-    }
-    tr:hover { background: #f7fafc; }
-    .ad-thumb {
-      width: 64px;
-      height: 40px;
-      object-fit: cover;
-      border-radius: 4px;
-    }
+    td { padding:14px 12px; border-bottom:1px solid var(--border); }
+    tr:hover { background:var(--bg-light); }
+    .ad-thumb { width:60px; height:36px; object-fit:cover; border-radius:4px; border:1px solid var(--border); }
     .status-badge {
-      padding: 4px 10px;
-      border-radius: 12px;
-      font-size: 11px;
-      font-weight: 600;
-      text-transform: uppercase;
+      padding:4px 8px; border-radius:12px; font-size:11px; font-weight:600;
+      text-transform:uppercase;
     }
-    .status-active {
-      background: #c6f6d5;
-      color: #22543d;
-    }
-    .status-paused {
-      background: #fed7d7;
-      color: #742a2a;
-    }
+    .status-active { background:#d1fae5; color:#065f46; }
+    .status-paused { background:#fee2e2; color:#991b1b; }
     
     .chart-card {
-      background: #ffffff;
-      padding: 24px;
-      border-radius: 8px;
-      border: 1px solid #e2e8f0;
-      margin-bottom: 24px;
+      background:var(--bg); border:1px solid var(--border); border-radius:8px;
+      padding:20px; margin-bottom:24px; box-shadow:var(--shadow);
     }
     .chart-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 16px;
-      flex-wrap: wrap;
-      gap: 12px;
+      display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;
     }
-    .chart-title {
-      font-size: 16px;
-      font-weight: 600;
-      color: #1a202c;
-    }
-    .chart-meta {
-      color: #718096;
-      font-size: 13px;
-    }
-    .chart-container {
-      position: relative;
-      height: 250px;
-    }
+    .chart-title { font-size:15px; font-weight:600; }
+    .chart-meta { color:var(--text-secondary); font-size:12px; }
+    .chart-container { position:relative; height:220px; }
     
     .export-bar {
-      background: #f7fafc;
-      padding: 20px 24px;
-      border-radius: 8px;
-      border: 1px solid #e2e8f0;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 12px;
+      background:var(--bg-light); padding:16px 20px; border-radius:8px;
+      border:1px solid var(--border); display:flex; justify-content:space-between;
+      align-items:center; flex-wrap:wrap; gap:12px; margin-top:32px;
     }
     
-    @media (max-width: 768px) {
-      body { padding: 12px; }
-      .container { padding: 20px; }
-      .header h1 { font-size: 22px; }
-      .form-grid { grid-template-columns: 1fr; }
-      table { font-size: 12px; }
-      td, th { padding: 10px 8px; }
+    @media (max-width:768px) {
+      body { padding:12px; }
+      .container { padding:0; }
+      .header h1 { font-size:22px; }
+      table { font-size:12px; }
+      td, th { padding:10px 8px; }
     }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="header">
-      <div>
-        <h1>📊 Ad Manager Pro</h1>
-        <div class="header-subtitle">Professional Advertising Analytics Platform</div>
-      </div>
+      <h1><i class="fas fa-chart-line"></i> Ad Manager Pro</h1>
       <div class="time-badge">
-         Today's Tracking: <strong>12:00 AM</strong> → <strong id="currentTime">--:--</strong> (SL Time)
-        <br>
-        <span style="font-size:12px; color:#718096;">Date: <span id="currentDate"></span></span>
+        <i class="fas fa-clock"></i>
+        <span>Today: <strong>12:00 AM</strong> → <strong id="currentTime">--:--</strong> (SL Time)</span>
       </div>
     </div>
 
-    <!-- Add Ad Form -->
+    <!-- Add Ad -->
     <div class="section">
-      <div class="section-title">➕ Create New Advertisement</div>
-      <div class="form-card">
+      <div class="section-title"><i class="fas fa-plus-circle"></i> Create New Advertisement</div>
+      <div class="card">
         <div class="form-grid">
           <div class="form-group">
             <label>Ad Type</label>
             <select id="adType">
-              <option value="banner">Banner Ad (Auto-Slide Carousel)</option>
+              <option value="banner">Banner Ad (Auto-Slide)</option>
               <option value="anchor">Anchor Ad (Fixed Bottom)</option>
             </select>
           </div>
@@ -315,56 +180,37 @@
             <input type="text" id="buttonUrl" placeholder="www.example.com">
           </div>
         </div>
-        <div style="margin-top: 16px;">
-          <button class="btn btn-primary" onclick="addAd()">📢 Publish Advertisement</button>
+        <div style="margin-top:16px;">
+          <button class="btn btn-primary" onclick="addAd()"><i class="fas fa-bullhorn"></i> Publish Advertisement</button>
         </div>
       </div>
     </div>
 
     <!-- Stats -->
     <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-value" id="totalAds">0</div>
-        <div class="stat-label">Total Ads</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-value" id="activeAds">0</div>
-        <div class="stat-label">Active Ads</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-value" id="todayViews">0</div>
-        <div class="stat-label">Today's Views</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-value" id="todayClicks">0</div>
-        <div class="stat-label">Today's Clicks</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-value" id="avgCTR">0%</div>
-        <div class="stat-label">Avg CTR</div>
-      </div>
+      <div class="stat-card"><div class="stat-value" id="totalAds">0</div><div class="stat-label">Total Ads</div></div>
+      <div class="stat-card"><div class="stat-value" id="activeAds">0</div><div class="stat-label">Active Ads</div></div>
+      <div class="stat-card"><div class="stat-value" id="todayViews">0</div><div class="stat-label">Today's Views</div></div>
+      <div class="stat-card"><div class="stat-value" id="todayClicks">0</div><div class="stat-label">Today's Clicks</div></div>
+      <div class="stat-card"><div class="stat-value" id="avgCTR">0%</div><div class="stat-label">Avg CTR</div></div>
     </div>
 
-    <!-- Ads Table -->
+    <!-- Table -->
     <div class="section">
-      <div class="section-title">📋 All Advertisements</div>
-      <div style="overflow-x: auto;">
+      <div class="section-title"><i class="fas fa-list"></i> All Advertisements</div>
+      <div style="overflow-x:auto; border:1px solid var(--border); border-radius:8px;">
         <table>
           <thead>
             <tr>
-              <th>Type</th>
-              <th>Image</th>
-              <th>Description</th>
-              <th>Total Views</th>
-              <th>Total Clicks</th>
-              <th>CTR</th>
-              <th>Today</th>
-              <th>Status</th>
-              <th>Actions</th>
+              <th>Type</th><th>Image</th><th>Description</th>
+              <th>Total Views</th><th>Total Clicks</th><th>CTR</th>
+              <th>Today</th><th>Status</th><th>Actions</th>
             </tr>
           </thead>
           <tbody id="adsTableBody">
-            <tr><td colspan="9" style="text-align:center; padding:40px;">Loading...</td></tr>
+            <tr><td colspan="9" style="text-align:center; padding:40px; color:var(--text-secondary);">
+              <i class="fas fa-spinner fa-spin"></i> Loading...
+            </td></tr>
           </tbody>
         </table>
       </div>
@@ -375,13 +221,10 @@
 
     <!-- Export -->
     <div class="export-bar">
-      <div>
-        <strong>📥 Export Reports</strong>
-        <span style="color:#718096; font-size:13px; margin-left:8px;">Professional PDF reports for advertisers</span>
+      <div><strong><i class="fas fa-download"></i> Export Reports</strong>
+        <span style="color:var(--text-secondary); font-size:13px; margin-left:8px;">Professional PDF reports for advertisers</span>
       </div>
-      <div>
-        <button class="btn btn-success" onclick="exportAllReports()">📊 Export All Ads Summary</button>
-      </div>
+      <button class="btn btn-success" onclick="exportAllReports()"><i class="fas fa-file-pdf"></i> Export All Ads Summary</button>
     </div>
   </div>
 
@@ -398,37 +241,25 @@
       appId: "1:65568577957:web:ef9f6dae41aeec20d7b04c",
       measurementId: "G-MSYGVV8LBJ"
     };
-
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
     
     function getTodaySL() {
-      const now = new Date();
-      return new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Colombo' })).toISOString().split('T')[0];
+      return new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Colombo' })).toISOString().split('T')[0];
     }
     const today = getTodaySL();
     
-    function updateCurrentTime() {
-      const now = new Date();
-      const slTime = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Colombo' }));
-      document.getElementById('currentTime').textContent = slTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
-      document.getElementById('currentDate').textContent = slTime.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+    function updateTime() {
+      const sl = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Colombo' }));
+      document.getElementById('currentTime').textContent = sl.toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit', hour12:true });
     }
-    updateCurrentTime();
-    setInterval(updateCurrentTime, 30000);
+    updateTime(); setInterval(updateTime, 30000);
     
-    const last10Days = getLast10Days();
+    const last10Days = Array.from({length:10}, (_,i) => {
+      const d = new Date(); d.setDate(d.getDate()-i);
+      return d.toISOString().split('T')[0];
+    });
     const charts = {};
-
-    function getLast10Days() {
-      const days = [];
-      for (let i = 9; i >= 0; i--) {
-        const d = new Date();
-        d.setDate(d.getDate() - i);
-        days.push(d.toISOString().split('T')[0]);
-      }
-      return days;
-    }
 
     async function addAd() {
       const type = document.getElementById('adType').value;
@@ -436,373 +267,191 @@
       const description = document.getElementById('description').value;
       const buttonText = document.getElementById('buttonText').value || 'Click Here';
       let buttonUrl = document.getElementById('buttonUrl').value.trim();
-      
       if (!buttonUrl.startsWith('http')) buttonUrl = 'https://' + buttonUrl;
-      if (!imageUrl || !description || !buttonUrl) {
-        alert('Please fill all required fields!');
-        return;
-      }
+      if (!imageUrl || !description || !buttonUrl) { alert('Please fill all fields!'); return; }
 
       try {
         await db.collection('ads').add({
           type, imageUrl, description, buttonText, buttonUrl,
-          active: true, totalViews: 0, totalClicks: 0,
-          dailyStats: { [today]: { views: 0, clicks: 0 } },
+          active:true, totalViews:0, totalClicks:0,
+          dailyStats:{ [today]:{ views:0, clicks:0 } },
           createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
-        alert('✅ Published!');
-        document.getElementById('imageUrl').value = '';
-        document.getElementById('description').value = '';
-        document.getElementById('buttonText').value = '';
-        document.getElementById('buttonUrl').value = '';
-      } catch (error) {
-        alert('Error: ' + error.message);
-      }
+        alert('Published successfully!');
+        ['imageUrl','description','buttonText','buttonUrl'].forEach(id => document.getElementById(id).value = '');
+      } catch(e) { alert('Error: ' + e.message); }
     }
 
-    async function toggleAd(id, current) {
-      await db.collection('ads').doc(id).update({ active: !current });
-    }
+    async function toggleAd(id, cur) { await db.collection('ads').doc(id).update({ active: !cur }); }
+    async function deleteAd(id) { if(confirm('Delete permanently?')) await db.collection('ads').doc(id).delete(); }
+    function ctr(v,c) { return v ? ((c/v)*100).toFixed(2)+'%' : '0%'; }
 
-    async function deleteAd(id) {
-      if (confirm('Delete permanently?')) {
-        await db.collection('ads').doc(id).delete();
-      }
-    }
-
-    function calculateCTR(views, clicks) {
-      if (views === 0) return '0%';
-      return ((clicks / views) * 100).toFixed(2) + '%';
-    }
-
-    // Live data
-    db.collection('ads').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
+    db.collection('ads').orderBy('createdAt','desc').onSnapshot(snapshot => {
       const tbody = document.getElementById('adsTableBody');
-      let totalViews = 0, totalClicks = 0, todayViews = 0, todayClicks = 0, activeCount = 0;
-
-      if (snapshot.empty) {
-        tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; padding:40px; color:#718096;">No advertisements yet. Create your first ad above!</td></tr>';
-        document.getElementById('chartsContainer').innerHTML = '';
-        return;
+      let tV=0, tC=0, dV=0, dC=0, aC=0;
+      if(snapshot.empty) {
+        tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--text-secondary);"><i class="fas fa-inbox"></i> No ads yet</td></tr>';
+        document.getElementById('chartsContainer').innerHTML = ''; return;
       }
-
       tbody.innerHTML = '';
-      document.getElementById('chartsContainer').innerHTML = '<div class="section" style="margin-top:32px;"><div class="section-title"> Performance Trends (Last 10 Days)</div></div>';
+      document.getElementById('chartsContainer').innerHTML = '<div class="section" style="margin-top:24px;"><div class="section-title"><i class="fas fa-chart-area"></i> Performance Trends (Last 10 Days)</div></div>';
 
       snapshot.forEach(doc => {
         const ad = doc.data();
-        totalViews += (ad.totalViews || 0);
-        totalClicks += (ad.totalClicks || 0);
-        const ts = ad.dailyStats?.[today] || { views: 0, clicks: 0 };
-        todayViews += ts.views;
-        todayClicks += ts.clicks;
-        if (ad.active) activeCount++;
-
-        const ctr = calculateCTR(ad.totalViews || 0, ad.totalClicks || 0);
-        const viewsData = last10Days.map(day => (ad.dailyStats?.[day]?.views) || 0);
-        const clicksData = last10Days.map(day => (ad.dailyStats?.[day]?.clicks) || 0);
-
+        tV += ad.totalViews||0; tC += ad.totalClicks||0;
+        const ts = ad.dailyStats?.[today] || {views:0, clicks:0};
+        dV += ts.views; dC += ts.clicks;
+        if(ad.active) aC++;
+        const c = ctr(ad.totalViews||0, ad.totalClicks||0);
+        
         setTimeout(() => {
           const ctx = document.getElementById(`chart-${doc.id}`);
-          if (ctx && charts[doc.id]) charts[doc.id].destroy();
-          if (ctx) {
+          if(ctx && charts[doc.id]) charts[doc.id].destroy();
+          if(ctx) {
             charts[doc.id] = new Chart(ctx, {
-              type: 'line',
-              data: {
-                labels: last10Days.map(d => d.slice(5)),
-                datasets: [
-                  {
-                    label: 'Views',
-                     viewsData,
-                    borderColor: '#667eea',
-                    backgroundColor: 'rgba(102,126,234,0.05)',
-                    fill: true,
-                    tension: 0.3,
-                    pointRadius: 3,
-                    pointHoverRadius: 5
-                  },
-                  {
-                    label: 'Clicks',
-                    data: clicksData,
-                    borderColor: '#48bb78',
-                    backgroundColor: 'rgba(72,187,120,0.05)',
-                    fill: true,
-                    tension: 0.3,
-                    pointRadius: 3,
-                    pointHoverRadius: 5
-                  }
+              type:'line',
+              data:{
+                labels: last10Days.map(d=>d.slice(5)),
+                datasets:[
+                  { label:'Views', data:last10Days.map(day=>(ad.dailyStats?.[day]?.views)||0), borderColor:'#3b82f6', backgroundColor:'rgba(59,130,246,0.08)', fill:true, tension:0.3, pointRadius:3, pointHoverRadius:5 },
+                  { label:'Clicks', data:last10Days.map(day=>(ad.dailyStats?.[day]?.clicks)||0), borderColor:'#10b981', backgroundColor:'rgba(16,185,129,0.08)', fill:true, tension:0.3, pointRadius:3, pointHoverRadius:5 }
                 ]
               },
-              options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                  legend: { position: 'top', labels: { boxWidth: 12, padding: 16 } },
-                  tooltip: { mode: 'index', intersect: false }
-                },
-                scales: {
-                  y: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { color: '#edf2f7' } },
-                  x: { grid: { display: false } }
-                },
-                interaction: { mode: 'nearest', axis: 'x', intersect: false }
+              options:{
+                responsive:true, maintainAspectRatio:false,
+                plugins:{ legend:{ position:'top', labels:{ boxWidth:10, padding:12, font:{size:11} } }, tooltip:{ mode:'index', intersect:false, backgroundColor:'rgba(17,24,39,0.9)', padding:10, cornerRadius:6 } },
+                scales:{ y:{ beginAtZero:true, ticks:{ stepSize:1, font:{size:11} }, grid:{ color:'#f3f4f6' } }, x:{ grid:{ display:false }, ticks:{ font:{size:11} } } },
+                interaction:{ mode:'nearest', axis:'x', intersect:false }
               }
             });
           }
         }, 50);
 
-        tbody.innerHTML += `
-          <tr>
-            <td><span style="text-transform:uppercase; font-size:11px; color:#718096; font-weight:600;">${ad.type}</span></td>
-            <td><img src="${ad.imageUrl}" class="ad-thumb"></td>
-            <td style="max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${ad.description}</td>
-            <td><strong>${ad.totalViews || 0}</strong></td>
-            <td><strong>${ad.totalClicks || 0}</strong></td>
-            <td><strong style="color:${parseFloat(ctr) > 2 ? '#38a169' : '#718096'}">${ctr}</strong></td>
-            <td><span style="color:#667eea; font-weight:600;">${ts.views}</span>v / <span style="color:#48bb78; font-weight:600;">${ts.clicks}</span>c</td>
-            <td><span class="status-badge ${ad.active ? 'status-active' : 'status-paused'}">${ad.active ? 'Active' : 'Paused'}</span></td>
-            <td style="white-space:nowrap;">
-              <button class="btn btn-warning btn-sm" onclick="toggleAd('${doc.id}', ${ad.active})" title="${ad.active ? 'Pause' : 'Activate'}">${ad.active ? '' : '▶'}</button>
-              <button class="btn btn-danger btn-sm" onclick="deleteAd('${doc.id}')" title="Delete">🗑</button>
-              <button class="btn btn-success btn-sm" onclick="exportAdPDF('${doc.id}')" title="Download Report">📄</button>
-            </td>
-          </tr>`;
+        tbody.innerHTML += `<tr>
+          <td><span style="text-transform:uppercase;font-size:11px;color:var(--text-secondary);font-weight:600;">${ad.type}</span></td>
+          <td><img src="${ad.imageUrl}" class="ad-thumb"></td>
+          <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${ad.description}</td>
+          <td><strong>${ad.totalViews||0}</strong></td>
+          <td><strong>${ad.totalClicks||0}</strong></td>
+          <td><strong style="color:${parseFloat(c)>2?'#10b981':'#6b7280'}">${c}</strong></td>
+          <td><span style="color:#3b82f6;font-weight:600;">${ts.views}</span>v / <span style="color:#10b981;font-weight:600;">${ts.clicks}</span>c</td>
+          <td><span class="status-badge ${ad.active?'status-active':'status-paused'}">${ad.active?'Active':'Paused'}</span></td>
+          <td style="white-space:nowrap;">
+            <button class="btn btn-warning btn-sm" onclick="toggleAd('${doc.id}',${ad.active})" title="${ad.active?'Pause':'Activate'}"><i class="fas ${ad.active?'fa-pause':'fa-play'}"></i></button>
+            <button class="btn btn-danger btn-sm" onclick="deleteAd('${doc.id}')" title="Delete"><i class="fas fa-trash"></i></button>
+            <button class="btn btn-success btn-sm" onclick="exportAdPDF('${doc.id}')" title="Download Report"><i class="fas fa-file-pdf"></i></button>
+          </td>
+        </tr>`;
 
         document.getElementById('chartsContainer').innerHTML += `
           <div class="chart-card">
             <div class="chart-header">
               <div class="chart-title">${ad.description}</div>
-              <div class="chart-meta">Total: ${ad.totalViews || 0} views · ${ad.totalClicks || 0} clicks · CTR: ${ctr}</div>
+              <div class="chart-meta">Total: ${ad.totalViews||0} views · ${ad.totalClicks||0} clicks · CTR: ${c}</div>
             </div>
-            <div class="chart-container">
-              <canvas id="chart-${doc.id}"></canvas>
-            </div>
+            <div class="chart-container"><canvas id="chart-${doc.id}"></canvas></div>
           </div>`;
       });
 
       document.getElementById('totalAds').textContent = snapshot.size;
-      document.getElementById('activeAds').textContent = activeCount;
-      document.getElementById('todayViews').textContent = todayViews;
-      document.getElementById('todayClicks').textContent = todayClicks;
-      document.getElementById('avgCTR').textContent = calculateCTR(totalViews, totalClicks);
+      document.getElementById('activeAds').textContent = aC;
+      document.getElementById('todayViews').textContent = dV;
+      document.getElementById('todayClicks').textContent = dC;
+      document.getElementById('avgCTR').textContent = ctr(tV,tC);
     });
 
-    // Professional Individual PDF
+    // Professional PDF Export (Individual)
     async function exportAdPDF(adId) {
-      const { jsPDF } = window.jspdf;
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      const logoUrl = 'https://i.postimg.cc/htkJwcMc/cropped-circle-image-(29).png';
-      
-      try {
-        pdf.addImage(logoUrl, 'PNG', 18, 18, 20, 20);
-      } catch(e) {}
-      
-      // Header line
-      pdf.setDrawColor(102, 126, 234);
-      pdf.setLineWidth(0.8);
-      pdf.line(45, 30, 195, 30);
-      
-      pdf.setFontSize(20);
-      pdf.setFont(undefined, 'bold');
-      pdf.setTextColor(26, 32, 44);
-      pdf.text('Advertisement Performance Report', 48, 26);
-      
-      pdf.setFontSize(10);
-      pdf.setFont(undefined, 'normal');
-      pdf.setTextColor(113, 128, 150);
-      pdf.text(`Generated: ${new Date().toLocaleString('en-US', { timeZone: 'Asia/Colombo' })} | Tracking Day: ${today}`, 48, 33);
+      const {jsPDF} = window.jspdf;
+      const pdf = new jsPDF('p','mm','a4');
+      const logo = 'https://i.postimg.cc/htkJwcMc/cropped-circle-image-(29).png';
+      try { pdf.addImage(logo,'PNG',18,18,20,20); } catch(e){}
+      pdf.setDrawColor(59,130,246); pdf.setLineWidth(0.8); pdf.line(45,30,195,30);
+      pdf.setFontSize(20); pdf.setFont(undefined,'bold'); pdf.setTextColor(17,24,39);
+      pdf.text('Advertisement Performance Report',48,26);
+      pdf.setFontSize(10); pdf.setFont(undefined,'normal'); pdf.setTextColor(107,114,128);
+      pdf.text(`Generated: ${new Date().toLocaleString('en-US',{timeZone:'Asia/Colombo'})} | Day: ${today}`,48,33);
       
       const doc = await db.collection('ads').doc(adId).get();
-      const ad = doc.data();
-      if (!ad) return;
+      const ad = doc.data(); if(!ad) return;
       
-      // Ad info box
-      pdf.setFillColor(247, 250, 252);
-      pdf.roundedRect(18, 42, 174, 28, 3, 3, 'F');
+      pdf.setFillColor(249,250,251); pdf.roundedRect(18,42,174,28,3,3,'F');
+      pdf.setFontSize(11); pdf.setFont(undefined,'bold'); pdf.setTextColor(17,24,39);
+      pdf.text('Campaign Details',22,50);
+      pdf.setFontSize(10); pdf.setFont(undefined,'normal'); pdf.setTextColor(75,85,99);
+      pdf.text(`Type: ${ad.type.toUpperCase()}`,22,58);
+      pdf.text(`Description: ${ad.description}`,80,58);
+      pdf.text(`Button: "${ad.buttonText}"`,22,64);
+      pdf.text(`Link: ${ad.buttonUrl}`,80,64);
       
-      pdf.setFontSize(11);
-      pdf.setFont(undefined, 'bold');
-      pdf.setTextColor(26, 32, 44);
-      pdf.text('Campaign Details', 22, 50);
+      const ts = ad.dailyStats?.[today]||{views:0,clicks:0};
+      const c = ctr(ad.totalViews||0, ad.totalClicks||0);
       
-      pdf.setFontSize(10);
-      pdf.setFont(undefined, 'normal');
-      pdf.setTextColor(74, 85, 104);
-      pdf.text(`Type: ${ad.type.toUpperCase()}`, 22, 58);
-      pdf.text(`Description: ${ad.description}`, 80, 58);
-      pdf.text(`Button: "${ad.buttonText}"`, 22, 64);
-      pdf.text(`Link: ${ad.buttonUrl}`, 80, 64);
+      pdf.setFontSize(11); pdf.setFont(undefined,'bold'); pdf.text('Performance Metrics',18,82);
+      pdf.setDrawColor(229,231,235); pdf.line(18,85,192,85);
       
-      // Stats table
-      pdf.setFontSize(11);
-      pdf.setFont(undefined, 'bold');
-      pdf.setTextColor(26, 32, 44);
-      pdf.text('Performance Metrics', 18, 82);
-      
-      const todayStats = ad.dailyStats?.[today] || { views: 0, clicks: 0 };
-      const ctr = calculateCTR(ad.totalViews || 0, ad.totalClicks || 0);
-      
-      pdf.setDrawColor(226, 232, 240);
-      pdf.setLineWidth(0.3);
-      pdf.line(18, 85, 192, 85);
-      
-      const metrics = [
-        { label: 'Total Views', value: ad.totalViews || 0, color: [102, 126, 234] },
-        { label: 'Total Clicks', value: ad.totalClicks || 0, color: [72, 187, 120] },
-        { label: 'Click-Through Rate', value: ctr, color: [237, 137, 54] },
-        { label: 'Today Views', value: todayStats.views, color: [102, 126, 234] },
-        { label: 'Today Clicks', value: todayStats.clicks, color: [72, 187, 120] }
-      ];
-      
-      let mx = 18;
-      metrics.forEach(m => {
-        pdf.setFontSize(9);
-        pdf.setFont(undefined, 'normal');
-        pdf.setTextColor(113, 128, 150);
-        pdf.text(m.label, mx, 93);
-        
-        pdf.setFontSize(18);
-        pdf.setFont(undefined, 'bold');
-        pdf.setTextColor(...m.color);
-        pdf.text(String(m.value), mx, 102);
-        
-        mx += 35;
+      const m = [{l:'Total Views',v:ad.totalViews||0,c:[59,130,246]},{l:'Total Clicks',v:ad.totalClicks||0,c:[16,185,129]},
+                 {l:'CTR',v:c,c:[245,158,11]},{l:'Today Views',v:ts.views,c:[59,130,246]},{l:'Today Clicks',v:ts.clicks,c:[16,185,129]}];
+      let mx=18;
+      m.forEach(i=>{
+        pdf.setFontSize(9); pdf.setFont(undefined,'normal'); pdf.setTextColor(107,114,128); pdf.text(i.l,mx,93);
+        pdf.setFontSize(18); pdf.setFont(undefined,'bold'); pdf.setTextColor(...i.c); pdf.text(String(i.v),mx,102);
+        mx+=35;
       });
       
-      // Daily breakdown table
-      pdf.setFontSize(11);
-      pdf.setFont(undefined, 'bold');
-      pdf.setTextColor(26, 32, 44);
-      pdf.text('Daily Breakdown (Last 10 Days)', 18, 118);
+      pdf.setFontSize(11); pdf.setFont(undefined,'bold'); pdf.setTextColor(17,24,39);
+      pdf.text('Daily Breakdown (Last 10 Days)',18,118);
+      pdf.setFillColor(249,250,251); pdf.rect(18,122,174,8,'F');
+      pdf.setFontSize(9); pdf.setFont(undefined,'bold'); pdf.setTextColor(75,85,99);
+      pdf.text('Date',22,128); pdf.text('Views',75,128); pdf.text('Clicks',115,128); pdf.text('CTR',155,128);
+      pdf.line(18,130,192,130);
       
-      // Table header
-      pdf.setFillColor(247, 250, 252);
-      pdf.rect(18, 122, 174, 8, 'F');
-      
-      pdf.setFontSize(9);
-      pdf.setFont(undefined, 'bold');
-      pdf.setTextColor(74, 85, 104);
-      pdf.text('Date', 22, 128);
-      pdf.text('Views', 75, 128);
-      pdf.text('Clicks', 115, 128);
-      pdf.text('CTR', 155, 128);
-      
-      pdf.setDrawColor(226, 232, 240);
-      pdf.line(18, 130, 192, 130);
-      
-      let yPos = 138;
-      last10Days.forEach((day, i) => {
-        const ds = ad.dailyStats?.[day] || { views: 0, clicks: 0 };
-        const dayCTR = calculateCTR(ds.views, ds.clicks);
-        
-        if (i % 2 === 0) {
-          pdf.setFillColor(250, 250, 250);
-          pdf.rect(18, yPos - 5, 174, 7, 'F');
-        }
-        
-        pdf.setFontSize(9);
-        pdf.setFont(undefined, 'normal');
-        pdf.setTextColor(74, 85, 104);
-        pdf.text(day.slice(5), 22, yPos);
-        pdf.text(String(ds.views), 75, yPos);
-        pdf.text(String(ds.clicks), 115, yPos);
-        pdf.text(dayCTR, 155, yPos);
-        
-        yPos += 7;
+      let yPos=138;
+      last10Days.forEach((day,i)=>{
+        const ds = ad.dailyStats?.[day]||{views:0,clicks:0};
+        if(i%2===0){pdf.setFillColor(250,250,250);pdf.rect(18,yPos-5,174,7,'F');}
+        pdf.setFontSize(9);pdf.setFont(undefined,'normal');pdf.setTextColor(75,85,99);
+        pdf.text(day.slice(5),22,yPos);pdf.text(String(ds.views),75,yPos);pdf.text(String(ds.clicks),115,yPos);pdf.text(ctr(ds.views,ds.clicks),155,yPos);
+        yPos+=7;
       });
       
-      // Footer
-      pdf.setFontSize(8);
-      pdf.setTextColor(160, 174, 192);
-      pdf.text('Page 1 of 1', 18, 285);
-      pdf.text('Generated by Ad Manager Pro | Confidential', 192, 285, { align: 'right' });
-      
-      const safeName = ad.description.replace(/[^a-z0-9]/gi, '_').substring(0, 25);
-      pdf.save(`AdReport_${safeName}_${today}.pdf`);
+      pdf.setFontSize(8);pdf.setTextColor(160,174,192);
+      pdf.text('Page 1 of 1',18,285);pdf.text('Generated by Ad Manager Pro | Confidential',192,285,{align:'right'});
+      pdf.save(`AdReport_${ad.description.replace(/[^a-z0-9]/gi,'_').substring(0,25)}_${today}.pdf`);
     }
 
-    // Professional All Ads Summary PDF
     async function exportAllReports() {
-      const { jsPDF } = window.jspdf;
-      const pdf = new jsPDF('l', 'mm', 'a4');
-      const logoUrl = 'https://i.postimg.cc/htkJwcMc/cropped-circle-image-(29).png';
+      const {jsPDF} = window.jspdf;
+      const pdf = new jsPDF('l','mm','a4');
+      const logo = 'https://i.postimg.cc/htkJwcMc/cropped-circle-image-(29).png';
+      try{pdf.addImage(logo,'PNG',18,18,18,18);}catch(e){}
+      pdf.setDrawColor(59,130,246);pdf.setLineWidth(0.8);pdf.line(42,28,275,28);
+      pdf.setFontSize(22);pdf.setFont(undefined,'bold');pdf.setTextColor(17,24,39);
+      pdf.text('All Advertisements - Summary Report',45,24);
+      pdf.setFontSize(10);pdf.setFont(undefined,'normal');pdf.setTextColor(107,114,128);
+      pdf.text(`Generated: ${new Date().toLocaleString('en-US',{timeZone:'Asia/Colombo'})} | Period: Last 10 Days`,45,32);
       
-      try { pdf.addImage(logoUrl, 'PNG', 18, 18, 18, 18); } catch(e) {}
+      const snapshot = await db.collection('ads').orderBy('createdAt','desc').get();
+      pdf.setFillColor(249,250,251);pdf.rect(18,42,254,10,'F');
+      pdf.setFontSize(10);pdf.setFont(undefined,'bold');pdf.setTextColor(75,85,99);
+      pdf.text('Ad',22,49);pdf.text('Type',85,49);pdf.text('Total Views',115,49);pdf.text('Total Clicks',160,49);pdf.text('CTR',200,49);pdf.text('Today',230,49);
+      pdf.line(18,52,272,52);
       
-      pdf.setDrawColor(102, 126, 234);
-      pdf.setLineWidth(0.8);
-      pdf.line(42, 28, 275, 28);
-      
-      pdf.setFontSize(22);
-      pdf.setFont(undefined, 'bold');
-      pdf.setTextColor(26, 32, 44);
-      pdf.text('All Advertisements - Summary Report', 45, 24);
-      
-      pdf.setFontSize(10);
-      pdf.setFont(undefined, 'normal');
-      pdf.setTextColor(113, 128, 150);
-      pdf.text(`Generated: ${new Date().toLocaleString('en-US', { timeZone: 'Asia/Colombo' })} | Period: Last 10 Days | Timezone: Asia/Colombo`, 45, 32);
-      
-      const snapshot = await db.collection('ads').orderBy('createdAt', 'desc').get();
-      
-      // Summary table header
-      pdf.setFillColor(247, 250, 252);
-      pdf.rect(18, 42, 254, 10, 'F');
-      
-      pdf.setFontSize(10);
-      pdf.setFont(undefined, 'bold');
-      pdf.setTextColor(74, 85, 104);
-      pdf.text('Ad', 22, 49);
-      pdf.text('Type', 85, 49);
-      pdf.text('Total Views', 115, 49);
-      pdf.text('Total Clicks', 160, 49);
-      pdf.text('CTR', 200, 49);
-      pdf.text('Today', 230, 49);
-      
-      pdf.setDrawColor(226, 232, 240);
-      pdf.line(18, 52, 272, 52);
-      
-      let yPos = 60;
-      snapshot.forEach((doc, i) => {
-        if (yPos > 185) {
-          pdf.addPage();
-          yPos = 20;
-        }
-        
-        const ad = doc.data();
-        const ts = ad.dailyStats?.[today] || { views: 0, clicks: 0 };
-        const ctr = calculateCTR(ad.totalViews || 0, ad.totalClicks || 0);
-        
-        if (i % 2 === 0) {
-          pdf.setFillColor(250, 250, 250);
-          pdf.rect(18, yPos - 4, 254, 8, 'F');
-        }
-        
-        pdf.setFontSize(9);
-        pdf.setFont(undefined, 'normal');
-        pdf.setTextColor(45, 55, 72);
-        pdf.text(ad.description.substring(0, 45), 22, yPos);
-        
-        pdf.setTextColor(113, 128, 150);
-        pdf.text(ad.type.toUpperCase(), 85, yPos);
-        pdf.setTextColor(74, 85, 104);
-        pdf.text(String(ad.totalViews || 0), 115, yPos);
-        pdf.text(String(ad.totalClicks || 0), 160, yPos);
-        pdf.text(ctr, 200, yPos);
-        pdf.text(`${ts.views}v / ${ts.clicks}c`, 230, yPos);
-        
-        yPos += 9;
+      let yPos=60;
+      snapshot.forEach((doc,i)=>{
+        if(yPos>185){pdf.addPage();yPos=20;}
+        const ad=doc.data();const ts=ad.dailyStats?.[today]||{views:0,clicks:0};const c=ctr(ad.totalViews||0,ad.totalClicks||0);
+        if(i%2===0){pdf.setFillColor(250,250,250);pdf.rect(18,yPos-4,254,8,'F');}
+        pdf.setFontSize(9);pdf.setFont(undefined,'normal');pdf.setTextColor(45,55,72);
+        pdf.text(ad.description.substring(0,45),22,yPos);
+        pdf.setTextColor(107,114,128);pdf.text(ad.type.toUpperCase(),85,yPos);
+        pdf.setTextColor(75,85,99);
+        pdf.text(String(ad.totalViews||0),115,yPos);pdf.text(String(ad.totalClicks||0),160,yPos);pdf.text(c,200,yPos);pdf.text(`${ts.views}v/${ts.clicks}c`,230,yPos);
+        yPos+=9;
       });
       
-      // Footer
-      const pageCount = pdf.internal.getNumberOfPages();
-      for (let p = 1; p <= pageCount; p++) {
-        pdf.setPage(p);
-        pdf.setFontSize(8);
-        pdf.setTextColor(160, 174, 192);
-        pdf.text(`Page ${p} of ${pageCount}`, 18, 203);
-        pdf.text('Generated by Ad Manager Pro | Confidential', 272, 203, { align: 'right' });
-      }
-      
+      const pc=pdf.internal.getNumberOfPages();
+      for(let p=1;p<=pc;p++){pdf.setPage(p);pdf.setFontSize(8);pdf.setTextColor(160,174,192);pdf.text(`Page ${p} of ${pc}`,18,203);pdf.text('Generated by Ad Manager Pro | Confidential',272,203,{align:'right'});}
       pdf.save(`AllAds_Summary_${today}.pdf`);
     }
   </script>
