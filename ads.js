@@ -1,4 +1,4 @@
-// ads.js - Professional Ad System v6.1 (Mobile Offer Fix)
+// ads.js - Professional Ad System v6.2 (Premium Offer Refined)
 // =====================================
 
 const firebaseConfig = {
@@ -99,7 +99,6 @@ class BannerCarousel {
         <div style="position:absolute; top:-6px; right:12px; width:12px; height:12px; background:#1f2937; transform:rotate(45deg);"></div>
       </div>`;
 
-    // Tracking
     document.querySelectorAll(`.ad-click-btn[data-id="${id}"]`).forEach(btn => {
       btn.addEventListener('click', e => {
         e.preventDefault();
@@ -125,7 +124,6 @@ class BannerCarousel {
   }
 }
 
-// Global tooltip toggle for inline icon
 window.toggleInfoTooltip = function() {
   const tooltip = document.getElementById('ad-info-tooltip-banner');
   if (!tooltip) return;
@@ -134,7 +132,7 @@ window.toggleInfoTooltip = function() {
   tooltip.style.transform = isVisible ? 'translateY(8px)' : 'translateY(0)';
 };
 
-// 🎁 Premium Offer Banner with Countdown (Mobile Fixed)
+// 🎁 Professional Premium Offer Banner (Exact Banner Container Size)
 function renderPremiumOffer(offer) {
   const container = document.getElementById('offer-ad-container');
   if (!container) return;
@@ -159,62 +157,78 @@ function renderPremiumOffer(offer) {
     container.innerHTML = `
       <style>
         .offer-banner {
-          background: linear-gradient(135deg, #fff 0%, #f8fafc 100%);
-          border: 2px solid #f59e0b;
-          border-radius: 10px;
+          background: #ffffff;
+          border: 1px solid #e5e7eb;
+          border-left: 4px solid #f59e0b;
+          border-radius: 8px;
           padding: 16px 20px;
-          margin: 15px auto;
+          margin: 20px auto;
           max-width: 800px;
           display: flex;
           align-items: center;
           justify-content: space-between;
-          gap: 15px;
-          box-shadow: 0 4px 15px rgba(245,158,11,0.15);
-          animation: pulseOffer 2s infinite;
-          flex-wrap: wrap;
+          gap: 20px;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+          transition: all 0.3s;
+          position: relative;
+          overflow: hidden;
         }
-        @keyframes pulseOffer {
-          0%, 100% { box-shadow: 0 4px 15px rgba(245,158,11,0.15); }
-          50% { box-shadow: 0 6px 20px rgba(245,158,11,0.25); }
+        .offer-banner::before {
+          content: '';
+          position: absolute;
+          top: 0; left: 0; width: 100%; height: 100%;
+          background: linear-gradient(135deg, rgba(245,158,11,0.03) 0%, transparent 60%);
+          pointer-events: none;
         }
-        .offer-content { flex: 1; min-width: 180px; }
-        .offer-title { font-size: 13px; font-weight: 700; color: #d97706; text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 2px 0; }
-        .offer-desc { font-size: 12px; color: #4b5563; margin: 0 0 6px 0; }
-        .offer-price { font-size: 20px; font-weight: 800; color: #dc2626; }
-        .offer-timer { display: flex; gap: 6px; align-items: center; }
-        .timer-box { background: #1f2937; color: #fff; padding: 6px 8px; border-radius: 6px; text-align: center; min-width: 38px; }
-        .timer-value { font-size: 16px; font-weight: 700; line-height: 1; }
-        .timer-label { font-size: 8px; color: #9ca3af; text-transform: uppercase; margin-top: 2px; }
+        .offer-banner:hover { box-shadow: 0 4px 16px rgba(245,158,11,0.12); transform: translateY(-1px); }
+        .offer-icon { font-size: 26px; color: #f59e0b; flex-shrink: 0; }
+        .offer-details { flex: 1; min-width: 0; }
+        .offer-title { font-size: 14px; font-weight: 700; color: #111827; margin: 0 0 4px; display: flex; align-items: center; gap: 6px; }
+        .offer-badge { background: #fef3c7; color: #92400e; font-size: 10px; padding: 2px 6px; border-radius: 10px; font-weight: 600; }
+        .offer-desc { font-size: 13px; color: #6b7280; margin: 0 0 6px; }
+        .offer-price { font-size: 22px; font-weight: 800; color: #dc2626; }
+        .offer-timer { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
+        .timer-box { background: #f3f4f6; padding: 6px 10px; border-radius: 6px; text-align: center; min-width: 44px; }
+        .timer-value { font-size: 16px; font-weight: 700; color: #111827; line-height: 1; }
+        .timer-label { font-size: 9px; color: #6b7280; text-transform: uppercase; margin-top: 2px; }
         .offer-btn {
-          padding: 8px 16px; background: #f59e0b; color: #fff; text-decoration: none;
-          border-radius: 6px; font-weight: 700; font-size: 13px; transition: all 0.2s;
+          padding: 10px 20px;
+          background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+          color: #fff;
+          text-decoration: none;
+          border-radius: 6px;
+          font-weight: 700;
+          font-size: 14px;
           box-shadow: 0 4px 12px rgba(245,158,11,0.3);
+          transition: all 0.2s;
+          white-space: nowrap;
+          flex-shrink: 0;
         }
-        .offer-btn:hover { background: #d97706; transform: translateY(-2px); }
+        .offer-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(245,158,11,0.4); }
         
-        /* ✅ Mobile Styles */
         @media (max-width: 768px) {
-          .offer-banner { 
-            flex-direction: column; 
-            text-align: center; 
-            padding: 12px; 
-            gap: 12px;
-            margin: 10px 5px;
+          .offer-banner {
+            flex-direction: column;
+            text-align: center;
+            padding: 14px 16px;
+            margin: 15px 10px;
+            gap: 14px;
+            border-left: none;
+            border-top: 4px solid #f59e0b;
           }
-          .offer-content { min-width: 100%; }
-          .offer-title { font-size: 11px; }
-          .offer-desc { font-size: 11px; }
-          .offer-price { font-size: 18px; }
-          .offer-timer { justify-content: center; gap: 4px; width: 100%; }
-          .timer-box { padding: 4px 6px; min-width: 32px; }
+          .offer-icon { display: none; }
+          .offer-details { width: 100%; }
+          .offer-title { justify-content: center; }
+          .offer-timer { justify-content: center; width: 100%; }
+          .timer-box { padding: 5px 8px; min-width: 38px; }
           .timer-value { font-size: 14px; }
-          .timer-label { font-size: 7px; }
-          .offer-btn { width: 100%; padding: 10px; font-size: 14px; }
+          .offer-btn { width: 100%; padding: 11px; font-size: 14px; }
         }
       </style>
       <div class="offer-banner">
-        <div class="offer-content">
-          <p class="offer-title"> Special Premium Offer</p>
+        <i class="fas fa-crown offer-icon"></i>
+        <div class="offer-details">
+          <p class="offer-title">Special Premium Offer <span class="offer-badge">LIMITED</span></p>
           <p class="offer-desc">${offer.description}</p>
           <div class="offer-price">${offer.price}</div>
         </div>
@@ -312,9 +326,8 @@ function trackAdEvent(adId, type) {
 
 // 🚀 Initialize
 document.addEventListener('DOMContentLoaded', () => {
-  console.log(' Loading ads from Firebase...');
+  console.log('🔄 Loading ads from Firebase...');
   
-  // Fetch active ads (avoid composite index)
   db.collection('ads').where('active', '==', true).onSnapshot(snapshot => {
     bannerAdsQueue = [];
     let anchorAd = null;
@@ -327,25 +340,21 @@ document.addEventListener('DOMContentLoaded', () => {
     
     console.log(`✅ Found ${bannerAdsQueue.length} banner ads`);
     
-    // Init banner carousels
     window.carousels = [];
     const containerIds = ['banner-ad-container-1', 'banner-ad-container-2', 'banner-ad-container'];
     containerIds.forEach(id => {
       if (document.getElementById(id)) window.carousels.push(new BannerCarousel(id));
     });
     
-    // Init anchor ad
     if (anchorAd && document.getElementById('anchor-ad-container')) {
       renderAnchorAd(anchorAd, anchorAd.id);
     }
   }, error => console.error('❌ Firebase error:', error));
 
-  // Fetch premium offers
   db.collection('offers').where('active', '==', true).onSnapshot(snapshot => {
     let bestOffer = null;
     snapshot.forEach(doc => {
       const offer = { ...doc.data(), id: doc.id };
-      // Show offer with latest end date
       if (!bestOffer || offer.endDate > bestOffer.endDate) bestOffer = offer;
     });
     if (bestOffer) renderPremiumOffer(bestOffer);
