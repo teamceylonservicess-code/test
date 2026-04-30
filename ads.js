@@ -1,4 +1,4 @@
-// ads.js - Professional Ad System v6.0 (Premium Offers Added)
+// ads.js - Professional Ad System v6.1 (Mobile Offer Fix)
 // =====================================
 
 const firebaseConfig = {
@@ -39,7 +39,7 @@ class BannerCarousel {
     this.currentIndex = 0;
     this.interval = null;
     if (!this.container) {
-      console.warn(`⚠️ Banner container not found: ${containerId}`);
+      console.warn(`️ Banner container not found: ${containerId}`);
       return;
     }
     console.log(`✅ Carousel initialized for: ${containerId}`);
@@ -134,7 +134,7 @@ window.toggleInfoTooltip = function() {
   tooltip.style.transform = isVisible ? 'translateY(8px)' : 'translateY(0)';
 };
 
-//  Premium Offer Banner with Countdown
+// 🎁 Premium Offer Banner with Countdown (Mobile Fixed)
 function renderPremiumOffer(offer) {
   const container = document.getElementById('offer-ad-container');
   if (!container) return;
@@ -163,12 +163,12 @@ function renderPremiumOffer(offer) {
           border: 2px solid #f59e0b;
           border-radius: 10px;
           padding: 16px 20px;
-          margin: 20px auto;
+          margin: 15px auto;
           max-width: 800px;
           display: flex;
           align-items: center;
           justify-content: space-between;
-          gap: 20px;
+          gap: 15px;
           box-shadow: 0 4px 15px rgba(245,158,11,0.15);
           animation: pulseOffer 2s infinite;
           flex-wrap: wrap;
@@ -177,23 +177,39 @@ function renderPremiumOffer(offer) {
           0%, 100% { box-shadow: 0 4px 15px rgba(245,158,11,0.15); }
           50% { box-shadow: 0 6px 20px rgba(245,158,11,0.25); }
         }
-        .offer-content { flex: 1; min-width: 200px; }
-        .offer-title { font-size: 14px; font-weight: 700; color: #d97706; text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 4px 0; }
-        .offer-desc { font-size: 13px; color: #4b5563; margin: 0 0 8px 0; }
-        .offer-price { font-size: 24px; font-weight: 800; color: #dc2626; }
-        .offer-timer { display: flex; gap: 8px; align-items: center; }
-        .timer-box { background: #1f2937; color: #fff; padding: 8px 10px; border-radius: 6px; text-align: center; min-width: 45px; }
-        .timer-value { font-size: 18px; font-weight: 700; line-height: 1; }
-        .timer-label { font-size: 9px; color: #9ca3af; text-transform: uppercase; margin-top: 2px; }
+        .offer-content { flex: 1; min-width: 180px; }
+        .offer-title { font-size: 13px; font-weight: 700; color: #d97706; text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 2px 0; }
+        .offer-desc { font-size: 12px; color: #4b5563; margin: 0 0 6px 0; }
+        .offer-price { font-size: 20px; font-weight: 800; color: #dc2626; }
+        .offer-timer { display: flex; gap: 6px; align-items: center; }
+        .timer-box { background: #1f2937; color: #fff; padding: 6px 8px; border-radius: 6px; text-align: center; min-width: 38px; }
+        .timer-value { font-size: 16px; font-weight: 700; line-height: 1; }
+        .timer-label { font-size: 8px; color: #9ca3af; text-transform: uppercase; margin-top: 2px; }
         .offer-btn {
-          padding: 10px 20px; background: #f59e0b; color: #fff; text-decoration: none;
-          border-radius: 6px; font-weight: 700; font-size: 14px; transition: all 0.2s;
+          padding: 8px 16px; background: #f59e0b; color: #fff; text-decoration: none;
+          border-radius: 6px; font-weight: 700; font-size: 13px; transition: all 0.2s;
           box-shadow: 0 4px 12px rgba(245,158,11,0.3);
         }
         .offer-btn:hover { background: #d97706; transform: translateY(-2px); }
+        
+        /* ✅ Mobile Styles */
         @media (max-width: 768px) {
-          .offer-banner { flex-direction: column; text-align: center; padding: 14px; }
-          .offer-timer { justify-content: center; }
+          .offer-banner { 
+            flex-direction: column; 
+            text-align: center; 
+            padding: 12px; 
+            gap: 12px;
+            margin: 10px 5px;
+          }
+          .offer-content { min-width: 100%; }
+          .offer-title { font-size: 11px; }
+          .offer-desc { font-size: 11px; }
+          .offer-price { font-size: 18px; }
+          .offer-timer { justify-content: center; gap: 4px; width: 100%; }
+          .timer-box { padding: 4px 6px; min-width: 32px; }
+          .timer-value { font-size: 14px; }
+          .timer-label { font-size: 7px; }
+          .offer-btn { width: 100%; padding: 10px; font-size: 14px; }
         }
       </style>
       <div class="offer-banner">
@@ -217,7 +233,7 @@ function renderPremiumOffer(offer) {
   offerInterval = setInterval(updateCountdown, 1000);
 }
 
-//  Anchor Ad (Fixed: shows up arrow when collapsed)
+// 📍 Anchor Ad (Fixed: shows up arrow when collapsed)
 function renderAnchorAd(ad, id) {
   const container = document.getElementById('anchor-ad-container');
   if (!container) return;
