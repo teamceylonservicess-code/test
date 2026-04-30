@@ -1,4 +1,4 @@
-// ads.js - Professional Ad System v5.0 (Dual Banners + Info Tooltip)
+// ads.js - Professional Ad System v5.1 (Fixed Banner Display)
 // =====================================
 
 const firebaseConfig = {
@@ -14,7 +14,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-// 🇱 Sri Lanka timezone
+// 🇱🇰 Sri Lanka timezone
 function getTodaySL() {
   const now = new Date();
   return new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Colombo' })).toISOString().split('T')[0];
@@ -31,14 +31,18 @@ function fixUrl(url) {
   return url.startsWith('http://') || url.startsWith('https://') ? url : 'https://' + url;
 }
 
-// 🎠 Banner Carousel Class (Supports multiple locations)
+// 🎠 Banner Carousel Class
 class BannerCarousel {
   constructor(containerId, delay = 5000) {
     this.container = document.getElementById(containerId);
     this.delay = delay;
     this.currentIndex = 0;
     this.interval = null;
-    if (!this.container) return;
+    if (!this.container) {
+      console.warn(`⚠️ Banner container not found: ${containerId}`);
+      return;
+    }
+    console.log(`✅ Carousel initialized for: ${containerId}`);
     this.start();
   }
 
@@ -69,47 +73,25 @@ class BannerCarousel {
     this.container.innerHTML = `
       <style>
         .pro-banner {
-          background: #ffffff;
-          border: 1px solid #e5e7eb;
-          border-radius: 8px;
-          padding: 16px;
-          display: flex;
-          align-items: center;
-          gap: 16px;
-          box-shadow: 0 2px 6px rgba(0,0,0,0.04);
-          animation: fadeIn 0.3s ease;
+          background: #ffffff; border: 1px solid #e5e7eb; border-radius: 8px;
+          padding: 16px; display: flex; align-items: center; gap: 16px;
+          box-shadow: 0 2px 6px rgba(0,0,0,0.04); animation: fadeIn 0.3s ease;
         }
         @keyframes fadeIn { from { opacity:0; transform:translateY(4px); } to { opacity:1; transform:translateY(0); } }
-        .pro-banner-logo {
-          width: 64px; height: 64px; object-fit: contain; border-radius: 6px;
-          background: #f9fafb; padding: 4px; flex-shrink: 0;
-        }
+        .pro-banner-logo { width: 64px; height: 64px; object-fit: contain; border-radius: 6px; background: #f9fafb; padding: 4px; flex-shrink: 0; }
         .pro-banner-content { flex: 1; display: flex; flex-direction: column; gap: 6px; }
         .pro-banner-desc { font-size: 13px; color: #374151; line-height: 1.4; margin: 0; }
-        .pro-banner-btn {
-          display: inline-block; padding: 7px 16px; background: #3b82f6; color: #fff;
-          text-decoration: none; border-radius: 5px; font-weight: 600; font-size: 13px;
-          width: fit-content; transition: background 0.2s;
-        }
+        .pro-banner-btn { display: inline-block; padding: 7px 16px; background: #3b82f6; color: #fff; text-decoration: none; border-radius: 5px; font-weight: 600; font-size: 13px; width: fit-content; transition: background 0.2s; }
         .pro-banner-btn:hover { background: #2563eb; }
-        .indicator {
-          width: 8px; height: 8px; border-radius: 50%; background: #d1d5db;
-          cursor: pointer; transition: all 0.2s;
-        }
+        .indicator { width: 8px; height: 8px; border-radius: 50%; background: #d1d5db; cursor: pointer; transition: all 0.2s; }
         .indicator.active { background: #3b82f6; transform: scale(1.1); }
-        @media (max-width: 768px) {
-          .pro-banner { flex-direction: column; text-align: center; padding: 12px; }
-          .pro-banner-logo { width: 48px; height: 48px; }
-          .pro-banner-desc { font-size: 12px; }
-        }
+        @media (max-width: 768px) { .pro-banner { flex-direction: column; text-align: center; padding: 12px; } .pro-banner-logo { width: 48px; height: 48px; } .pro-banner-desc { font-size: 12px; } }
       </style>
       <div class="pro-banner" data-ad-id="${id}">
         <img src="${ad.imageUrl}" alt="Ad" class="pro-banner-logo">
         <div class="pro-banner-content">
           <p class="pro-banner-desc">${ad.description}</p>
-          <a href="#" class="pro-banner-btn ad-click-btn" data-id="${id}" data-url="${ad.buttonUrl}">
-            ${ad.buttonText || 'Learn More'}
-          </a>
+          <a href="#" class="pro-banner-btn ad-click-btn" data-id="${id}" data-url="${ad.buttonUrl}">${ad.buttonText || 'Learn More'}</a>
         </div>
       </div>
       ${indicators}`;
@@ -143,7 +125,6 @@ class BannerCarousel {
 // ℹ️ Info Icon & Tooltip
 function initInfoIcon() {
   if (document.getElementById('ad-info-widget')) return;
-  
   const widget = document.createElement('div');
   widget.id = 'ad-info-widget';
   widget.style.cssText = 'position:fixed; bottom:90px; right:16px; z-index:9998;';
@@ -157,8 +138,7 @@ function initInfoIcon() {
       padding:10px 14px; border-radius:6px; font-size:13px; white-space:nowrap; opacity:0; transform:translateY(8px);
       transition:all 0.2s; pointer-events:none; box-shadow:0 4px 12px rgba(0,0,0,0.15);">
       Get premium to hide ads
-      <div style="position:absolute; bottom:-6px; right:12px; width:12px; height:12px; background:#1f2937; 
-        transform:rotate(45deg);"></div>
+      <div style="position:absolute; bottom:-6px; right:12px; width:12px; height:12px; background:#1f2937; transform:rotate(45deg);"></div>
     </div>
   `;
   document.body.appendChild(widget);
@@ -171,7 +151,6 @@ function initInfoIcon() {
     const isVisible = tooltip.style.opacity === '1';
     tooltip.style.opacity = isVisible ? '0' : '1';
     tooltip.style.transform = isVisible ? 'translateY(8px)' : 'translateY(0)';
-    
     if (!isVisible) {
       clearTimeout(tooltipTimeout);
       tooltipTimeout = setTimeout(() => {
@@ -189,48 +168,23 @@ function renderAnchorAd(ad, id) {
   
   container.innerHTML = `
     <style>
-      .pro-anchor-wrapper {
-        position:fixed; bottom:0; left:0; width:100%; z-index:9999;
-        transition:transform 0.3s cubic-bezier(0.4,0,0.2,1);
-        box-shadow:0 -4px 16px rgba(0,0,0,0.06);
-      }
+      .pro-anchor-wrapper { position:fixed; bottom:0; left:0; width:100%; z-index:9999; transition:transform 0.3s cubic-bezier(0.4,0,0.2,1); box-shadow:0 -4px 16px rgba(0,0,0,0.06); }
       .pro-anchor-wrapper.collapsed { transform:translateY(calc(100% - 32px)); }
-      .pro-anchor-toggle {
-        position:absolute; top:-26px; left:16px; background:#fff; color:#6b7280;
-        border:1px solid #e5e7eb; border-bottom:none; border-radius:6px 6px 0 0;
-        padding:3px 10px; cursor:pointer; font-size:13px; box-shadow:0 -2px 6px rgba(0,0,0,0.04);
-        transition:all 0.2s; display:flex; align-items:center; gap:4px; font-weight:500;
-      }
+      .pro-anchor-toggle { position:absolute; top:-26px; left:16px; background:#fff; color:#6b7280; border:1px solid #e5e7eb; border-bottom:none; border-radius:6px 6px 0 0; padding:3px 10px; cursor:pointer; font-size:13px; box-shadow:0 -2px 6px rgba(0,0,0,0.04); transition:all 0.2s; display:flex; align-items:center; gap:4px; font-weight:500; }
       .pro-anchor-toggle:hover { background:#f9fafb; color:#374151; }
-      .pro-anchor {
-        background:#fff; padding:10px 16px; display:flex; align-items:center;
-        justify-content:center; gap:12px; border-top:1px solid #e5e7eb;
-      }
+      .pro-anchor { background:#fff; padding:10px 16px; display:flex; align-items:center; justify-content:center; gap:12px; border-top:1px solid #e5e7eb; }
       .pro-anchor-logo { height:36px; width:auto; border-radius:4px; flex-shrink:0; }
       .pro-anchor-text { font-size:13px; color:#4b5563; flex:1; text-align:center; }
-      .pro-anchor-btn {
-        padding:7px 16px; background:#3b82f6; color:#fff; text-decoration:none;
-        border-radius:5px; font-weight:600; font-size:13px; white-space:nowrap; transition:background 0.2s;
-      }
+      .pro-anchor-btn { padding:7px 16px; background:#3b82f6; color:#fff; text-decoration:none; border-radius:5px; font-weight:600; font-size:13px; white-space:nowrap; transition:background 0.2s; }
       .pro-anchor-btn:hover { background:#2563eb; }
-      @media (max-width:768px) {
-        .pro-anchor { flex-wrap:wrap; padding:8px 12px; gap:8px; }
-        .pro-anchor-logo { height:28px; }
-        .pro-anchor-text { font-size:12px; width:100%; }
-        .pro-anchor-btn { padding:6px 12px; font-size:12px; }
-        .pro-anchor-toggle .arrow-text { display:none; }
-      }
+      @media (max-width:768px) { .pro-anchor { flex-wrap:wrap; padding:8px 12px; gap:8px; } .pro-anchor-logo { height:28px; } .pro-anchor-text { font-size:12px; width:100%; } .pro-anchor-btn { padding:6px 12px; font-size:12px; } .pro-anchor-toggle .arrow-text { display:none; } }
     </style>
     <div class="pro-anchor-wrapper" id="anchor-${id}">
-      <button class="pro-anchor-toggle" onclick="toggleAnchor('${id}')">
-        <span class="arrow-text">▼ Ad</span> <span>▼</span>
-      </button>
+      <button class="pro-anchor-toggle" onclick="toggleAnchor('${id}')"><span class="arrow-text">▼ Ad</span> <span>▼</span></button>
       <div class="pro-anchor">
         <img src="${ad.imageUrl}" alt="Ad" class="pro-anchor-logo">
         <span class="pro-anchor-text">${ad.description}</span>
-        <a href="#" class="pro-anchor-btn ad-click-btn" data-id="${id}" data-url="${ad.buttonUrl}">
-          ${ad.buttonText || 'Click Here'}
-        </a>
+        <a href="#" class="pro-anchor-btn ad-click-btn" data-id="${id}" data-url="${ad.buttonUrl}">${ad.buttonText || 'Click Here'}</a>
       </div>
     </div>
     <div style="height:70px;"></div>`;
@@ -278,20 +232,36 @@ function trackAdEvent(adId, type) {
 
 // 🚀 Initialize
 document.addEventListener('DOMContentLoaded', () => {
-  // Load banner ads
-  db.collection('ads').where('active', '==', true).where('type', '==', 'banner').onSnapshot(snapshot => {
+  console.log(' Loading ads from Firebase...');
+  
+  // Fetch active ads and filter by type in JS (avoids Firestore composite index requirement)
+  db.collection('ads').where('active', '==', true).onSnapshot(snapshot => {
     bannerAdsQueue = [];
-    snapshot.forEach(doc => bannerAdsQueue.push({ ...doc.data(), id: doc.id }));
-    // Initialize both banner locations if they exist
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      if (data.type === 'banner') bannerAdsQueue.push({ ...data, id: doc.id });
+    });
+    
+    console.log(`✅ Found ${bannerAdsQueue.length} active banner ads`);
+    
+    // Initialize carousels for all possible container IDs
     window.carousels = [];
-    if (document.getElementById('banner-ad-container-1')) window.carousels.push(new BannerCarousel('banner-ad-container-1'));
-    if (document.getElementById('banner-ad-container-2')) window.carousels.push(new BannerCarousel('banner-ad-container-2'));
+    const containerIds = ['banner-ad-container-1', 'banner-ad-container-2', 'banner-ad-container'];
+    containerIds.forEach(id => {
+      if (document.getElementById(id)) {
+        window.carousels.push(new BannerCarousel(id));
+      }
+    });
+  }, error => {
+    console.error('❌ Firebase error:', error);
   });
 
   // Load anchor ads
-  db.collection('ads').where('active', '==', true).where('type', '==', 'anchor').onSnapshot(snapshot => {
+  db.collection('ads').where('active', '==', true).onSnapshot(snapshot => {
     snapshot.docChanges().forEach(change => {
-      if (change.type === 'added' || change.type === 'modified') renderAnchorAd(change.doc.data(), change.doc.id);
+      if ((change.type === 'added' || change.type === 'modified') && change.doc.data().type === 'anchor') {
+        renderAnchorAd(change.doc.data(), change.doc.id);
+      }
     });
   });
 
