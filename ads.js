@@ -1,4 +1,4 @@
-// ads.js - Professional Ad System v3.0 (Auto-Slide + Timezone Fix)
+// ads.js - Professional Ad System v4.0 (Refined UI)
 // =====================================
 
 const firebaseConfig = {
@@ -14,7 +14,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-// 🇱🇰 Get today's date in Sri Lanka timezone (Asia/Colombo)
+// 🇱🇰 Sri Lanka timezone
 function getTodaySL() {
   const now = new Date();
   const slTime = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Colombo' }));
@@ -22,25 +22,12 @@ function getTodaySL() {
 }
 const today = getTodaySL();
 
-// 🕐 Get today's start time in SL timezone (for display)
-function getTodayStartTimeSL() {
-  const now = new Date();
-  const slTime = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Colombo' }));
-  return slTime.toLocaleTimeString('en-US', { 
-    hour: '2-digit', 
-    minute: '2-digit',
-    hour12: true,
-    timeZone: 'Asia/Colombo'
-  });
-}
-
 const viewedAds = new Set();
 const clickedAds = new Set();
 let bannerAdsQueue = [];
 let currentBannerIndex = 0;
 let bannerSlideInterval = null;
 
-// Auto-fix URLs
 function fixUrl(url) {
   if (!url) return '#';
   url = url.trim();
@@ -51,7 +38,6 @@ function fixUrl(url) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Load banner ads first for carousel setup
   db.collection('ads')
     .where('active', '==', true)
     .where('type', '==', 'banner')
@@ -61,7 +47,6 @@ document.addEventListener('DOMContentLoaded', () => {
       startBannerCarousel();
     });
 
-  // Load anchor ads separately
   db.collection('ads')
     .where('active', '==', true)
     .where('type', '==', 'anchor')
@@ -74,18 +59,20 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-// 🎠 Auto-Slide Banner Carousel
 function startBannerCarousel() {
   const container = document.getElementById('banner-ad-container');
-  if (!container || bannerAdsQueue.length === 0) return;
+  if (!container) return;
 
-  // Clear existing interval
   if (bannerSlideInterval) clearInterval(bannerSlideInterval);
 
-  // Show first ad immediately
+  if (bannerAdsQueue.length === 0) {
+    container.innerHTML = '';
+    return;
+  }
+
+  currentBannerIndex = 0;
   showBannerAd(bannerAdsQueue[0], bannerAdsQueue[0].id);
 
-  // Auto-slide every 5 seconds if multiple ads
   if (bannerAdsQueue.length > 1) {
     bannerSlideInterval = setInterval(() => {
       currentBannerIndex = (currentBannerIndex + 1) % bannerAdsQueue.length;
@@ -98,125 +85,111 @@ function showBannerAd(ad, id) {
   const container = document.getElementById('banner-ad-container');
   if (!container) return;
 
-  // Skip if already showing this ad
   if (container.querySelector(`[data-ad-id="${id}"]`)) return;
+
+  const indicatorsHTML = bannerAdsQueue.length > 1 ? `
+    <div class="banner-indicators" style="display:flex; justify-content:center; gap:8px; margin:12px auto 0; padding:0 20px;">
+      ${bannerAdsQueue.map((_, idx) => 
+        `<div class="indicator ${idx === currentBannerIndex ? 'active' : ''}" 
+              onclick="jumpToBanner(${idx})" 
+              style="width:10px; height:10px; border-radius:50%; background:${idx === currentBannerIndex ? '#667eea' : '#cbd5e0'}; cursor:pointer; transition:all 0.3s; box-shadow:${idx === currentBannerIndex ? '0 0 6px rgba(102,126,234,0.5)' : 'none'};"></div>`
+      ).join('')}
+    </div>
+  ` : '';
 
   container.innerHTML = `
     <style>
       .pro-banner {
-        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-        border: 2px solid #dee2e6;
-        border-radius: 12px;
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
         padding: 20px;
         margin: 20px auto;
         max-width: 800px;
         display: flex;
         align-items: center;
         gap: 20px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
         transition: transform 0.3s, box-shadow 0.3s;
         animation: fadeIn 0.4s ease;
       }
       @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(10px); }
+        from { opacity: 0; transform: translateY(8px); }
         to { opacity: 1; transform: translateY(0); }
       }
       .pro-banner:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
       }
       .pro-banner-logo {
         flex-shrink: 0;
-        width: 80px;
-        height: 80px;
-        object-fit: cover;
-        border-radius: 10px;
-        border: 3px solid #fff;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        width: 72px;
+        height: 72px;
+        object-fit: contain;
+        border-radius: 8px;
+        background: #f7fafc;
+        padding: 4px;
       }
       .pro-banner-content {
         flex: 1;
         display: flex;
         flex-direction: column;
-        gap: 10px;
+        gap: 8px;
       }
       .pro-banner-desc {
-        font-size: 15px;
-        color: #495057;
+        font-size: 14px;
+        color: #2d3748;
         line-height: 1.5;
         margin: 0;
       }
       .pro-banner-btn {
         display: inline-block;
-        padding: 10px 24px;
-        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+        padding: 8px 20px;
+        background: #667eea;
         color: #fff;
         text-decoration: none;
         border-radius: 6px;
         font-weight: 600;
+        font-size: 14px;
         text-align: center;
         width: fit-content;
-        transition: all 0.3s;
-        box-shadow: 0 2px 8px rgba(0,123,255,0.3);
+        transition: all 0.2s;
       }
       .pro-banner-btn:hover {
-        background: linear-gradient(135deg, #0056b3 0%, #004494 100%);
-        transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(0,123,255,0.4);
-      }
-      /* Carousel indicators */
-      .banner-indicators {
-        display: flex;
-        justify-content: center;
-        gap: 8px;
-        margin-top: 15px;
+        background: #5a67d8;
       }
       .indicator {
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        background: #ccc;
-        cursor: pointer;
         transition: all 0.3s;
       }
-      .indicator.active {
-        background: #007bff;
+      .indicator:hover {
         transform: scale(1.2);
       }
-      /* Mobile Responsive */
       @media (max-width: 768px) {
         .pro-banner {
           flex-direction: column;
           text-align: center;
-          padding: 15px;
-          margin: 15px 10px;
+          padding: 16px;
+          margin: 16px 12px;
         }
         .pro-banner-logo {
-          width: 60px;
-          height: 60px;
+          width: 56px;
+          height: 56px;
         }
         .pro-banner-desc {
           font-size: 13px;
         }
         .pro-banner-btn {
-          padding: 8px 20px;
-          font-size: 14px;
-        }
-        .banner-indicators {
-          margin-top: 10px;
+          padding: 7px 16px;
+          font-size: 13px;
         }
       }
       @media (max-width: 480px) {
         .pro-banner-logo {
-          width: 50px;
-          height: 50px;
+          width: 48px;
+          height: 48px;
         }
         .pro-banner-desc {
           font-size: 12px;
-        }
-        .pro-banner-btn {
-          padding: 6px 16px;
-          font-size: 13px;
         }
       }
     </style>
@@ -229,29 +202,17 @@ function showBannerAd(ad, id) {
         </a>
       </div>
     </div>
-    ${bannerAdsQueue.length > 1 ? `
-      <div class="banner-indicators">
-        ${bannerAdsQueue.map((_, idx) => 
-          `<div class="indicator ${idx === currentBannerIndex ? 'active' : ''}" 
-                onclick="jumpToBanner(${idx})"></div>`
-        ).join('')}
-      </div>
-    ` : ''}`;
+    ${indicatorsHTML}`;
 
-  // Setup click tracking
   setupAdTracking(id, ad.buttonUrl);
-  
-  // Track view (only once per page load)
   trackViewOnce(id);
 }
 
-// Jump to specific banner slide
 window.jumpToBanner = function(index) {
   if (bannerSlideInterval) clearInterval(bannerSlideInterval);
   currentBannerIndex = index;
   showBannerAd(bannerAdsQueue[index], bannerAdsQueue[index].id);
   
-  // Restart auto-slide
   if (bannerAdsQueue.length > 1) {
     bannerSlideInterval = setInterval(() => {
       currentBannerIndex = (currentBannerIndex + 1) % bannerAdsQueue.length;
@@ -260,7 +221,6 @@ window.jumpToBanner = function(index) {
   }
 };
 
-// 📍 Professional Anchor Ad (Desktop: Arrow Left-Top, Mobile: Auto-hide)
 function renderAnchorAd(ad, id) {
   const container = document.getElementById('anchor-ad-container');
   if (!container) return;
@@ -273,105 +233,97 @@ function renderAnchorAd(ad, id) {
         left: 0;
         width: 100%;
         z-index: 9999;
-        transition: transform 0.3s ease-in-out;
+        transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
       }
       .pro-anchor-wrapper.collapsed {
-        transform: translateY(calc(100% - 40px));
+        transform: translateY(calc(100% - 36px));
       }
       .pro-anchor-toggle {
         position: absolute;
-        top: -35px;
-        left: 10px;
-        background: linear-gradient(135deg, #28a745 0%, #218838 100%);
-        color: #fff;
-        border: none;
-        border-radius: 8px 8px 0 0;
-        padding: 8px 12px;
+        top: -28px;
+        left: 16px;
+        background: #ffffff;
+        color: #4a5568;
+        border: 1px solid #e2e8f0;
+        border-bottom: none;
+        border-radius: 6px 6px 0 0;
+        padding: 4px 10px;
         cursor: pointer;
-        font-size: 18px;
-        box-shadow: 0 -2px 10px rgba(0,0,0,0.2);
-        transition: all 0.3s;
+        font-size: 14px;
+        box-shadow: 0 -2px 8px rgba(0,0,0,0.05);
+        transition: all 0.2s;
         z-index: 10000;
         display: flex;
         align-items: center;
-        gap: 5px;
+        gap: 4px;
+        font-weight: 500;
       }
       .pro-anchor-toggle:hover {
-        background: linear-gradient(135deg, #218838 0%, #1e7e34 100%);
-        transform: translateY(-2px);
-      }
-      .pro-anchor-toggle .arrow-text {
-        font-size: 11px;
-        font-weight: 500;
-        display: none;
-      }
-      /* Desktop: Show arrow text */
-      @media (min-width: 769px) {
-        .pro-anchor-toggle .arrow-text {
-          display: inline;
-        }
+        background: #f7fafc;
+        color: #2d3748;
       }
       .pro-anchor {
-        background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
-        padding: 15px 20px;
-        box-shadow: 0 -4px 20px rgba(0,0,0,0.15);
+        background: #ffffff;
+        padding: 12px 20px;
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 20px;
-        border-top: 3px solid #28a745;
+        gap: 16px;
+        border-top: 1px solid #e2e8f0;
       }
       .pro-anchor-logo {
-        height: 45px;
+        height: 40px;
         width: auto;
-        border-radius: 6px;
+        border-radius: 4px;
         flex-shrink: 0;
       }
       .pro-anchor-text {
         font-size: 14px;
-        color: #495057;
+        color: #4a5568;
         flex: 1;
         text-align: center;
       }
       .pro-anchor-btn {
-        padding: 10px 24px;
-        background: linear-gradient(135deg, #28a745 0%, #218838 100%);
+        padding: 8px 20px;
+        background: #667eea;
         color: #fff;
         text-decoration: none;
         border-radius: 6px;
         font-weight: 600;
+        font-size: 14px;
         white-space: nowrap;
-        transition: all 0.3s;
-        box-shadow: 0 2px 8px rgba(40,167,69,0.3);
+        transition: all 0.2s;
       }
       .pro-anchor-btn:hover {
-        background: linear-gradient(135deg, #218838 0%, #1e7e34 100%);
-        transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(40,167,69,0.4);
+        background: #5a67d8;
       }
       @media (max-width: 768px) {
         .pro-anchor {
           flex-wrap: wrap;
-          padding: 12px 15px;
-          gap: 12px;
+          padding: 10px 16px;
+          gap: 10px;
         }
         .pro-anchor-logo {
-          height: 35px;
+          height: 32px;
         }
         .pro-anchor-text {
           font-size: 12px;
           width: 100%;
         }
         .pro-anchor-btn {
-          padding: 8px 20px;
+          padding: 7px 16px;
           font-size: 13px;
+        }
+        .pro-anchor-toggle .arrow-text {
+          display: none;
         }
       }
     </style>
     <div class="pro-anchor-wrapper" id="anchor-${id}">
       <button class="pro-anchor-toggle" onclick="toggleAnchor('${id}')">
         <span class="arrow-text">▼ Ad</span>
-        <span style="font-size:16px;">▼</span>
+        <span>▼</span>
       </button>
       <div class="pro-anchor">
         <img src="${ad.imageUrl}" alt="Ad" class="pro-anchor-logo">
@@ -381,9 +333,8 @@ function renderAnchorAd(ad, id) {
         </a>
       </div>
     </div>
-    <div style="height:90px;"></div>`;
+    <div style="height:80px;"></div>`;
 
-  // Store anchor state
   window.anchorStates = window.anchorStates || {};
   window.anchorStates[id] = false;
 
@@ -391,7 +342,6 @@ function renderAnchorAd(ad, id) {
   trackViewOnce(id);
 }
 
-// Toggle anchor ad visibility
 window.toggleAnchor = function(id) {
   const wrapper = document.getElementById(`anchor-${id}`);
   const toggle = wrapper.querySelector('.pro-anchor-toggle');
@@ -399,14 +349,13 @@ window.toggleAnchor = function(id) {
   
   if (window.anchorStates[id]) {
     wrapper.classList.add('collapsed');
-    toggle.innerHTML = '<span class="arrow-text">▲ Show</span><span style="font-size:16px;">▲</span>';
+    toggle.innerHTML = '<span class="arrow-text">▲ Show</span><span>▲</span>';
   } else {
     wrapper.classList.remove('collapsed');
-    toggle.innerHTML = '<span class="arrow-text">▼ Ad</span><span style="font-size:16px;">▼</span>';
+    toggle.innerHTML = '<span class="arrow-text">▼ Ad</span><span>▼</span>';
   }
 };
 
-// Setup click tracking
 function setupAdTracking(id, buttonUrl) {
   document.querySelectorAll(`.ad-click-btn[data-id="${id}"]`).forEach(btn => {
     btn.addEventListener('click', (e) => {
