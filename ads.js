@@ -1,4 +1,4 @@
-// ads.js - Professional Ad System v5.1 (Fixed Banner Display)
+// ads.js - Professional Ad System v6.0 (Premium Offers Added)
 // =====================================
 
 const firebaseConfig = {
@@ -14,7 +14,6 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-// 🇱🇰 Sri Lanka timezone
 function getTodaySL() {
   const now = new Date();
   return new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Colombo' })).toISOString().split('T')[0];
@@ -24,6 +23,7 @@ const today = getTodaySL();
 const viewedAds = new Set();
 const clickedAds = new Set();
 let bannerAdsQueue = [];
+let offerInterval = null;
 
 function fixUrl(url) {
   if (!url) return '#';
@@ -72,11 +72,7 @@ class BannerCarousel {
 
     this.container.innerHTML = `
       <style>
-        .pro-banner {
-          background: #ffffff; border: 1px solid #e5e7eb; border-radius: 8px;
-          padding: 16px; display: flex; align-items: center; gap: 16px;
-          box-shadow: 0 2px 6px rgba(0,0,0,0.04); animation: fadeIn 0.3s ease;
-        }
+        .pro-banner { background: #ffffff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; display: flex; align-items: center; gap: 16px; box-shadow: 0 2px 6px rgba(0,0,0,0.04); animation: fadeIn 0.3s ease; position:relative; }
         @keyframes fadeIn { from { opacity:0; transform:translateY(4px); } to { opacity:1; transform:translateY(0); } }
         .pro-banner-logo { width: 64px; height: 64px; object-fit: contain; border-radius: 6px; background: #f9fafb; padding: 4px; flex-shrink: 0; }
         .pro-banner-content { flex: 1; display: flex; flex-direction: column; gap: 6px; }
@@ -85,16 +81,23 @@ class BannerCarousel {
         .pro-banner-btn:hover { background: #2563eb; }
         .indicator { width: 8px; height: 8px; border-radius: 50%; background: #d1d5db; cursor: pointer; transition: all 0.2s; }
         .indicator.active { background: #3b82f6; transform: scale(1.1); }
+        .ad-info-inline { position:absolute; top:8px; right:8px; background:none; border:none; cursor:pointer; color:#9ca3af; font-size:16px; transition:color 0.2s; padding:4px; }
+        .ad-info-inline:hover { color:#3b82f6; }
         @media (max-width: 768px) { .pro-banner { flex-direction: column; text-align: center; padding: 12px; } .pro-banner-logo { width: 48px; height: 48px; } .pro-banner-desc { font-size: 12px; } }
       </style>
       <div class="pro-banner" data-ad-id="${id}">
+        <button class="ad-info-inline" onclick="toggleInfoTooltip()" title="Ad info"><i class="fas fa-info-circle"></i></button>
         <img src="${ad.imageUrl}" alt="Ad" class="pro-banner-logo">
         <div class="pro-banner-content">
           <p class="pro-banner-desc">${ad.description}</p>
           <a href="#" class="pro-banner-btn ad-click-btn" data-id="${id}" data-url="${ad.buttonUrl}">${ad.buttonText || 'Learn More'}</a>
         </div>
       </div>
-      ${indicators}`;
+      ${indicators}
+      <div id="ad-info-tooltip-banner" style="position:absolute; bottom:-40px; right:0; background:#1f2937; color:#fff; padding:10px 14px; border-radius:6px; font-size:13px; white-space:nowrap; opacity:0; transform:translateY(8px); transition:all 0.2s; pointer-events:none; box-shadow:0 4px 12px rgba(0,0,0,0.15); z-index:10;">
+        Get premium to hide ads
+        <div style="position:absolute; top:-6px; right:12px; width:12px; height:12px; background:#1f2937; transform:rotate(45deg);"></div>
+      </div>`;
 
     // Tracking
     document.querySelectorAll(`.ad-click-btn[data-id="${id}"]`).forEach(btn => {
@@ -122,72 +125,133 @@ class BannerCarousel {
   }
 }
 
-// ℹ️ Info Icon & Tooltip
-function initInfoIcon() {
-  if (document.getElementById('ad-info-widget')) return;
-  const widget = document.createElement('div');
-  widget.id = 'ad-info-widget';
-  widget.style.cssText = 'position:fixed; bottom:90px; right:16px; z-index:9998;';
-  widget.innerHTML = `
-    <button id="ad-info-btn" style="background:#fff; border:1px solid #e5e7eb; border-radius:50%; width:36px; height:36px; 
-      display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,0.1);
-      transition:all 0.2s; color:#6b7280; font-size:16px;">
-      <i class="fas fa-info-circle"></i>
-    </button>
-    <div id="ad-info-tooltip" style="position:absolute; bottom:44px; right:0; background:#1f2937; color:#fff; 
-      padding:10px 14px; border-radius:6px; font-size:13px; white-space:nowrap; opacity:0; transform:translateY(8px);
-      transition:all 0.2s; pointer-events:none; box-shadow:0 4px 12px rgba(0,0,0,0.15);">
-      Get premium to hide ads
-      <div style="position:absolute; bottom:-6px; right:12px; width:12px; height:12px; background:#1f2937; transform:rotate(45deg);"></div>
-    </div>
-  `;
-  document.body.appendChild(widget);
+// Global tooltip toggle for inline icon
+window.toggleInfoTooltip = function() {
+  const tooltip = document.getElementById('ad-info-tooltip-banner');
+  if (!tooltip) return;
+  const isVisible = tooltip.style.opacity === '1';
+  tooltip.style.opacity = isVisible ? '0' : '1';
+  tooltip.style.transform = isVisible ? 'translateY(8px)' : 'translateY(0)';
+};
 
-  let tooltipTimeout;
-  const btn = document.getElementById('ad-info-btn');
-  const tooltip = document.getElementById('ad-info-tooltip');
+//  Premium Offer Banner with Countdown
+function renderPremiumOffer(offer) {
+  const container = document.getElementById('offer-ad-container');
+  if (!container) return;
+
+  const endDate = new Date(offer.endDate + 'T23:59:59').getTime();
   
-  btn.addEventListener('click', () => {
-    const isVisible = tooltip.style.opacity === '1';
-    tooltip.style.opacity = isVisible ? '0' : '1';
-    tooltip.style.transform = isVisible ? 'translateY(8px)' : 'translateY(0)';
-    if (!isVisible) {
-      clearTimeout(tooltipTimeout);
-      tooltipTimeout = setTimeout(() => {
-        tooltip.style.opacity = '0';
-        tooltip.style.transform = 'translateY(8px)';
-      }, 4000);
+  function updateCountdown() {
+    const now = Date.now();
+    const diff = endDate - now;
+    
+    if (diff <= 0) {
+      container.innerHTML = '';
+      clearInterval(offerInterval);
+      return;
     }
-  });
+    
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+    
+    container.innerHTML = `
+      <style>
+        .offer-banner {
+          background: linear-gradient(135deg, #fff 0%, #f8fafc 100%);
+          border: 2px solid #f59e0b;
+          border-radius: 10px;
+          padding: 16px 20px;
+          margin: 20px auto;
+          max-width: 800px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 20px;
+          box-shadow: 0 4px 15px rgba(245,158,11,0.15);
+          animation: pulseOffer 2s infinite;
+          flex-wrap: wrap;
+        }
+        @keyframes pulseOffer {
+          0%, 100% { box-shadow: 0 4px 15px rgba(245,158,11,0.15); }
+          50% { box-shadow: 0 6px 20px rgba(245,158,11,0.25); }
+        }
+        .offer-content { flex: 1; min-width: 200px; }
+        .offer-title { font-size: 14px; font-weight: 700; color: #d97706; text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 4px 0; }
+        .offer-desc { font-size: 13px; color: #4b5563; margin: 0 0 8px 0; }
+        .offer-price { font-size: 24px; font-weight: 800; color: #dc2626; }
+        .offer-timer { display: flex; gap: 8px; align-items: center; }
+        .timer-box { background: #1f2937; color: #fff; padding: 8px 10px; border-radius: 6px; text-align: center; min-width: 45px; }
+        .timer-value { font-size: 18px; font-weight: 700; line-height: 1; }
+        .timer-label { font-size: 9px; color: #9ca3af; text-transform: uppercase; margin-top: 2px; }
+        .offer-btn {
+          padding: 10px 20px; background: #f59e0b; color: #fff; text-decoration: none;
+          border-radius: 6px; font-weight: 700; font-size: 14px; transition: all 0.2s;
+          box-shadow: 0 4px 12px rgba(245,158,11,0.3);
+        }
+        .offer-btn:hover { background: #d97706; transform: translateY(-2px); }
+        @media (max-width: 768px) {
+          .offer-banner { flex-direction: column; text-align: center; padding: 14px; }
+          .offer-timer { justify-content: center; }
+        }
+      </style>
+      <div class="offer-banner">
+        <div class="offer-content">
+          <p class="offer-title"> Special Premium Offer</p>
+          <p class="offer-desc">${offer.description}</p>
+          <div class="offer-price">${offer.price}</div>
+        </div>
+        <div class="offer-timer">
+          <div class="timer-box"><div class="timer-value">${String(days).padStart(2,'0')}</div><div class="timer-label">Days</div></div>
+          <div class="timer-box"><div class="timer-value">${String(hours).padStart(2,'0')}</div><div class="timer-label">Hrs</div></div>
+          <div class="timer-box"><div class="timer-value">${String(minutes).padStart(2,'0')}</div><div class="timer-label">Min</div></div>
+          <div class="timer-box"><div class="timer-value">${String(seconds).padStart(2,'0')}</div><div class="timer-label">Sec</div></div>
+        </div>
+        <a href="${fixUrl(offer.buttonUrl)}" class="offer-btn" target="_blank">Get Premium</a>
+      </div>`;
+  }
+  
+  updateCountdown();
+  if (offerInterval) clearInterval(offerInterval);
+  offerInterval = setInterval(updateCountdown, 1000);
 }
 
-// 📍 Anchor Ad
+//  Anchor Ad (Fixed: shows up arrow when collapsed)
 function renderAnchorAd(ad, id) {
   const container = document.getElementById('anchor-ad-container');
   if (!container) return;
   
   container.innerHTML = `
     <style>
-      .pro-anchor-wrapper { position:fixed; bottom:0; left:0; width:100%; z-index:9999; transition:transform 0.3s cubic-bezier(0.4,0,0.2,1); box-shadow:0 -4px 16px rgba(0,0,0,0.06); }
-      .pro-anchor-wrapper.collapsed { transform:translateY(calc(100% - 32px)); }
-      .pro-anchor-toggle { position:absolute; top:-26px; left:16px; background:#fff; color:#6b7280; border:1px solid #e5e7eb; border-bottom:none; border-radius:6px 6px 0 0; padding:3px 10px; cursor:pointer; font-size:13px; box-shadow:0 -2px 6px rgba(0,0,0,0.04); transition:all 0.2s; display:flex; align-items:center; gap:4px; font-weight:500; }
-      .pro-anchor-toggle:hover { background:#f9fafb; color:#374151; }
-      .pro-anchor { background:#fff; padding:10px 16px; display:flex; align-items:center; justify-content:center; gap:12px; border-top:1px solid #e5e7eb; }
-      .pro-anchor-logo { height:36px; width:auto; border-radius:4px; flex-shrink:0; }
-      .pro-anchor-text { font-size:13px; color:#4b5563; flex:1; text-align:center; }
-      .pro-anchor-btn { padding:7px 16px; background:#3b82f6; color:#fff; text-decoration:none; border-radius:5px; font-weight:600; font-size:13px; white-space:nowrap; transition:background 0.2s; }
+      .pro-anchor-wrapper { position:fixed; bottom:0; left:0; width:100%; z-index:9999; transition:transform 0.35s cubic-bezier(0.4,0,0.2,1); }
+      .pro-anchor-wrapper.collapsed { transform:translateY(calc(100% - 40px)); }
+      .pro-anchor-toggle { position:absolute; top:-32px; left:16px; background:#3b82f6; color:#fff; border:none; border-radius:8px 8px 0 0; padding:6px 12px; cursor:pointer; font-size:14px; box-shadow:0 -2px 8px rgba(0,0,0,0.15); transition:all 0.2s; display:flex; align-items:center; gap:4px; font-weight:600; }
+      .pro-anchor-toggle:hover { background:#2563eb; }
+      .pro-anchor { background:#fff; padding:12px 16px; display:flex; align-items:center; justify-content:center; gap:12px; box-shadow:0 -4px 16px rgba(0,0,0,0.06); border-top:2px solid #3b82f6; }
+      .pro-anchor-logo { height:40px; width:auto; border-radius:4px; flex-shrink:0; }
+      .pro-anchor-text { font-size:14px; color:#4b5563; flex:1; text-align:center; }
+      .pro-anchor-btn { padding:8px 18px; background:#3b82f6; color:#fff; text-decoration:none; border-radius:5px; font-weight:600; font-size:14px; white-space:nowrap; transition:background 0.2s; }
       .pro-anchor-btn:hover { background:#2563eb; }
-      @media (max-width:768px) { .pro-anchor { flex-wrap:wrap; padding:8px 12px; gap:8px; } .pro-anchor-logo { height:28px; } .pro-anchor-text { font-size:12px; width:100%; } .pro-anchor-btn { padding:6px 12px; font-size:12px; } .pro-anchor-toggle .arrow-text { display:none; } }
+      @media (max-width:768px) {
+        .pro-anchor { flex-wrap:wrap; padding:10px 12px; gap:8px; }
+        .pro-anchor-logo { height:32px; }
+        .pro-anchor-text { font-size:12px; width:100%; }
+        .pro-anchor-btn { padding:7px 14px; font-size:13px; }
+        .pro-anchor-toggle .arrow-text { display:none; }
+      }
     </style>
     <div class="pro-anchor-wrapper" id="anchor-${id}">
-      <button class="pro-anchor-toggle" onclick="toggleAnchor('${id}')"><span class="arrow-text">▼ Ad</span> <span>▼</span></button>
+      <button class="pro-anchor-toggle" onclick="toggleAnchor('${id}')">
+        <span class="arrow-text">▼ Ad</span> <span class="arrow-icon">▼</span>
+      </button>
       <div class="pro-anchor">
         <img src="${ad.imageUrl}" alt="Ad" class="pro-anchor-logo">
         <span class="pro-anchor-text">${ad.description}</span>
         <a href="#" class="pro-anchor-btn ad-click-btn" data-id="${id}" data-url="${ad.buttonUrl}">${ad.buttonText || 'Click Here'}</a>
       </div>
     </div>
-    <div style="height:70px;"></div>`;
+    <div style="height:76px;"></div>`;
 
   window.anchorStates = window.anchorStates || {};
   window.anchorStates[id] = false;
@@ -201,8 +265,8 @@ window.toggleAnchor = function(id) {
   window.anchorStates[id] = !window.anchorStates[id];
   wrapper.classList.toggle('collapsed', window.anchorStates[id]);
   toggle.innerHTML = window.anchorStates[id] 
-    ? '<span class="arrow-text">▲ Show</span> <span>▲</span>' 
-    : '<span class="arrow-text">▼ Ad</span> <span>▼</span>';
+    ? '<span class="arrow-text">▲ Show</span> <span class="arrow-icon">▲</span>' 
+    : '<span class="arrow-text">▼ Ad</span> <span class="arrow-icon">▼</span>';
 };
 
 function setupAdTracking(id, url) {
@@ -234,37 +298,40 @@ function trackAdEvent(adId, type) {
 document.addEventListener('DOMContentLoaded', () => {
   console.log(' Loading ads from Firebase...');
   
-  // Fetch active ads and filter by type in JS (avoids Firestore composite index requirement)
+  // Fetch active ads (avoid composite index)
   db.collection('ads').where('active', '==', true).onSnapshot(snapshot => {
     bannerAdsQueue = [];
+    let anchorAd = null;
+    
     snapshot.forEach(doc => {
       const data = doc.data();
       if (data.type === 'banner') bannerAdsQueue.push({ ...data, id: doc.id });
+      if (data.type === 'anchor') anchorAd = { ...data, id: doc.id };
     });
     
-    console.log(`✅ Found ${bannerAdsQueue.length} active banner ads`);
+    console.log(`✅ Found ${bannerAdsQueue.length} banner ads`);
     
-    // Initialize carousels for all possible container IDs
+    // Init banner carousels
     window.carousels = [];
     const containerIds = ['banner-ad-container-1', 'banner-ad-container-2', 'banner-ad-container'];
     containerIds.forEach(id => {
-      if (document.getElementById(id)) {
-        window.carousels.push(new BannerCarousel(id));
-      }
+      if (document.getElementById(id)) window.carousels.push(new BannerCarousel(id));
     });
-  }, error => {
-    console.error('❌ Firebase error:', error);
-  });
+    
+    // Init anchor ad
+    if (anchorAd && document.getElementById('anchor-ad-container')) {
+      renderAnchorAd(anchorAd, anchorAd.id);
+    }
+  }, error => console.error('❌ Firebase error:', error));
 
-  // Load anchor ads
-  db.collection('ads').where('active', '==', true).onSnapshot(snapshot => {
-    snapshot.docChanges().forEach(change => {
-      if ((change.type === 'added' || change.type === 'modified') && change.doc.data().type === 'anchor') {
-        renderAnchorAd(change.doc.data(), change.doc.id);
-      }
+  // Fetch premium offers
+  db.collection('offers').where('active', '==', true).onSnapshot(snapshot => {
+    let bestOffer = null;
+    snapshot.forEach(doc => {
+      const offer = { ...doc.data(), id: doc.id };
+      // Show offer with latest end date
+      if (!bestOffer || offer.endDate > bestOffer.endDate) bestOffer = offer;
     });
+    if (bestOffer) renderPremiumOffer(bestOffer);
   });
-
-  // Init info icon
-  initInfoIcon();
 });
