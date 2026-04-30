@@ -9,222 +9,142 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
     :root {
-      --primary: #3b82f6;
-      --primary-hover: #2563eb;
-      --success: #10b981;
-      --warning: #f59e0b;
-      --danger: #ef4444;
-      --text: #111827;
-      --text-secondary: #6b7280;
-      --border: #e5e7eb;
-      --bg: #ffffff;
-      --bg-light: #f9fafb;
+      --primary: #3b82f6; --primary-hover: #2563eb;
+      --success: #10b981; --warning: #f59e0b; --danger: #ef4444;
+      --text: #111827; --text-secondary: #6b7280; --border: #e5e7eb;
+      --bg: #ffffff; --bg-light: #f9fafb;
       --shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
-      --shadow-lg: 0 4px 6px rgba(0,0,0,0.05), 0 2px 4px rgba(0,0,0,0.04);
     }
     * { margin:0; padding:0; box-sizing:border-box; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height:100vh;
-      padding:24px;
-    }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); min-height:100vh; padding:24px; }
     .container { max-width:1280px; margin:0 auto; }
     
-    .header {
-      display:flex; justify-content:space-between; align-items:center;
-      margin-bottom:32px; padding-bottom:24px; border-bottom:1px solid var(--border);
-      flex-wrap:wrap; gap:16px;
-    }
+    .header { display:flex; justify-content:space-between; align-items:center; margin-bottom:32px; padding-bottom:24px; border-bottom:1px solid var(--border); flex-wrap:wrap; gap:16px; }
     .header h1 { font-size:28px; font-weight:700; display:flex; align-items:center; gap:10px; }
     .header h1 i { color: var(--primary); }
-    .time-badge {
-      background: var(--bg-light); padding:10px 16px; border-radius:8px;
-      font-size:13px; color: var(--text-secondary); border:1px solid var(--border);
-      display:flex; align-items:center; gap:8px;
-    }
+    .time-badge { background: var(--bg-light); padding:10px 16px; border-radius:8px; font-size:13px; color: var(--text-secondary); border:1px solid var(--border); display:flex; align-items:center; gap:8px; }
     
     .section { margin-bottom:32px; }
-    .section-title {
-      font-size:18px; font-weight:600; margin-bottom:16px;
-      display:flex; align-items:center; gap:8px; color: var(--text);
-    }
+    .section-title { font-size:18px; font-weight:600; margin-bottom:16px; display:flex; align-items:center; gap:8px; }
     
-    .card {
-      background: var(--bg); border:1px solid var(--border);
-      border-radius:10px; padding:24px; box-shadow: var(--shadow);
-    }
-    .form-grid {
-      display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:16px;
-    }
+    .card { background: var(--bg); border:1px solid var(--border); border-radius:10px; padding:24px; box-shadow: var(--shadow); }
+    .form-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:16px; }
     .form-group { margin:8px 0; }
-    label {
-      display:block; margin-bottom:6px; font-weight:500; color: var(--text-secondary);
-      font-size:13px; text-transform:uppercase; letter-spacing:0.5px;
-    }
-    input, select {
-      width:100%; padding:10px 14px; border:1px solid var(--border); border-radius:6px;
-      font-size:14px; color: var(--text); background: var(--bg-light);
-      transition: all 0.2s;
-    }
-    input:focus, select:focus {
-      border-color: var(--primary); outline:none;
-      box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
-      background: #fff;
-    }
+    label { display:block; margin-bottom:6px; font-weight:500; color: var(--text-secondary); font-size:13px; text-transform:uppercase; letter-spacing:0.5px; }
+    input, select { width:100%; padding:10px 14px; border:1px solid var(--border); border-radius:6px; font-size:14px; color: var(--text); background: var(--bg-light); transition: all 0.2s; }
+    input:focus, select:focus { border-color: var(--primary); outline:none; box-shadow: 0 0 0 3px rgba(59,130,246,0.15); background: #fff; }
     
-    .btn {
-      padding:10px 18px; border:none; border-radius:6px; cursor:pointer;
-      font-size:14px; font-weight:600; transition:all 0.2s;
-      display:inline-flex; align-items:center; gap:6px;
-    }
-    .btn-primary { background:var(--primary); color:#fff; }
-    .btn-primary:hover { background:var(--primary-hover); transform:translateY(-1px); }
-    .btn-success { background:var(--success); color:#fff; }
-    .btn-success:hover { background:#059669; }
-    .btn-warning { background:var(--warning); color:#fff; }
-    .btn-warning:hover { background:#d97706; }
-    .btn-danger { background:var(--danger); color:#fff; }
-    .btn-danger:hover { background:#dc2626; }
+    .btn { padding:10px 18px; border:none; border-radius:6px; cursor:pointer; font-size:14px; font-weight:600; transition:all 0.2s; display:inline-flex; align-items:center; gap:6px; }
+    .btn-primary { background:var(--primary); color:#fff; } .btn-primary:hover { background:var(--primary-hover); transform:translateY(-1px); }
+    .btn-success { background:var(--success); color:#fff; } .btn-success:hover { background:#059669; }
+    .btn-warning { background:var(--warning); color:#fff; } .btn-warning:hover { background:#d97706; }
+    .btn-danger { background:var(--danger); color:#fff; } .btn-danger:hover { background:#dc2626; }
     .btn-sm { padding:6px 10px; font-size:12px; }
     
-    .stats-grid {
-      display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:16px; margin-bottom:32px;
-    }
-    .stat-card {
-      background:var(--bg); border:1px solid var(--border); border-radius:8px;
-      padding:16px; text-align:center; box-shadow:var(--shadow);
-    }
+    .stats-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:16px; margin-bottom:32px; }
+    .stat-card { background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:16px; text-align:center; box-shadow:var(--shadow); }
     .stat-value { font-size:28px; font-weight:700; color:var(--primary); line-height:1; }
     .stat-label { color:var(--text-secondary); font-size:12px; margin-top:6px; text-transform:uppercase; letter-spacing:0.5px; }
     
     table { width:100%; border-collapse:collapse; font-size:14px; }
-    th {
-      background:var(--bg-light); color:var(--text-secondary); padding:12px;
-      text-align:left; font-weight:600; font-size:12px; text-transform:uppercase;
-      letter-spacing:0.5px; border-bottom:1px solid var(--border);
-    }
+    th { background:var(--bg-light); color:var(--text-secondary); padding:12px; text-align:left; font-weight:600; font-size:12px; text-transform:uppercase; letter-spacing:0.5px; border-bottom:1px solid var(--border); }
     td { padding:14px 12px; border-bottom:1px solid var(--border); }
     tr:hover { background:var(--bg-light); }
     .ad-thumb { width:60px; height:36px; object-fit:cover; border-radius:4px; border:1px solid var(--border); }
-    .status-badge {
-      padding:4px 8px; border-radius:12px; font-size:11px; font-weight:600;
-      text-transform:uppercase;
-    }
-    .status-active { background:#d1fae5; color:#065f46; }
-    .status-paused { background:#fee2e2; color:#991b1b; }
+    .status-badge { padding:4px 8px; border-radius:12px; font-size:11px; font-weight:600; text-transform:uppercase; }
+    .status-active { background:#d1fae5; color:#065f46; } .status-paused { background:#fee2e2; color:#991b1b; } .status-live { background:#dbeafe; color:#1e40af; }
     
-    .chart-card {
-      background:var(--bg); border:1px solid var(--border); border-radius:8px;
-      padding:20px; margin-bottom:24px; box-shadow:var(--shadow);
-    }
-    .chart-header {
-      display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;
-    }
+    .chart-card { background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:20px; margin-bottom:24px; box-shadow:var(--shadow); }
+    .chart-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px; }
     .chart-title { font-size:15px; font-weight:600; }
     .chart-meta { color:var(--text-secondary); font-size:12px; }
     .chart-container { position:relative; height:220px; }
     
-    .export-bar {
-      background:var(--bg-light); padding:16px 20px; border-radius:8px;
-      border:1px solid var(--border); display:flex; justify-content:space-between;
-      align-items:center; flex-wrap:wrap; gap:12px; margin-top:32px;
-    }
+    .export-bar { background:var(--bg-light); padding:16px 20px; border-radius:8px; border:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-top:32px; }
+    .tabs { display:flex; gap:8px; margin-bottom:24px; border-bottom:2px solid var(--border); padding-bottom:0; }
+    .tab { padding:12px 20px; cursor:pointer; font-weight:600; color:var(--text-secondary); border-bottom:2px solid transparent; margin-bottom:-2px; transition:all 0.2s; }
+    .tab.active { color:var(--primary); border-bottom-color:var(--primary); }
+    .tab:hover { color:var(--text); }
     
-    @media (max-width:768px) {
-      body { padding:12px; }
-      .container { padding:0; }
-      .header h1 { font-size:22px; }
-      table { font-size:12px; }
-      td, th { padding:10px 8px; }
-    }
+    @media (max-width:768px) { body { padding:12px; } .header h1 { font-size:22px; } table { font-size:12px; } td, th { padding:10px 8px; } }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="header">
       <h1><i class="fas fa-chart-line"></i> Ad Manager Pro</h1>
-      <div class="time-badge">
-        <i class="fas fa-clock"></i>
-        <span>Today: <strong>12:00 AM</strong> → <strong id="currentTime">--:--</strong> (SL Time)</span>
-      </div>
+      <div class="time-badge"><i class="fas fa-clock"></i> Today: <strong>12:00 AM</strong> → <strong id="currentTime">--:--</strong> (SL Time)</div>
     </div>
 
-    <!-- Add Ad -->
-    <div class="section">
-      <div class="section-title"><i class="fas fa-plus-circle"></i> Create New Advertisement</div>
-      <div class="card">
-        <div class="form-grid">
-          <div class="form-group">
-            <label>Ad Type</label>
-            <select id="adType">
-              <option value="banner">Banner Ad (Auto-Slide)</option>
-              <option value="anchor">Anchor Ad (Fixed Bottom)</option>
-            </select>
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('ads')"><i class="fas fa-ad"></i> Advertisements</div>
+      <div class="tab" onclick="switchTab('offers')"><i class="fas fa-gift"></i> Premium Offers</div>
+    </div>
+
+    <!-- ADS SECTION -->
+    <div id="ads-section">
+      <div class="section">
+        <div class="section-title"><i class="fas fa-plus-circle"></i> Create New Advertisement</div>
+        <div class="card">
+          <div class="form-grid">
+            <div class="form-group"><label>Ad Type</label><select id="adType"><option value="banner">Banner Ad (Auto-Slide)</option><option value="anchor">Anchor Ad (Fixed Bottom)</option></select></div>
+            <div class="form-group"><label>Image URL</label><input type="text" id="imageUrl" placeholder="https://example.com/logo.png"></div>
+            <div class="form-group"><label>Description</label><input type="text" id="description" placeholder="Brief ad description"></div>
+            <div class="form-group"><label>Button Text</label><input type="text" id="buttonText" placeholder="e.g., Shop Now"></div>
+            <div class="form-group"><label>Button URL</label><input type="text" id="buttonUrl" placeholder="www.example.com"></div>
           </div>
-          <div class="form-group">
-            <label>Image URL</label>
-            <input type="text" id="imageUrl" placeholder="https://example.com/logo.png">
-          </div>
-          <div class="form-group">
-            <label>Description</label>
-            <input type="text" id="description" placeholder="Brief ad description">
-          </div>
-          <div class="form-group">
-            <label>Button Text</label>
-            <input type="text" id="buttonText" placeholder="e.g., Shop Now">
-          </div>
-          <div class="form-group">
-            <label>Button URL</label>
-            <input type="text" id="buttonUrl" placeholder="www.example.com">
-          </div>
-        </div>
-        <div style="margin-top:16px;">
-          <button class="btn btn-primary" onclick="addAd()"><i class="fas fa-bullhorn"></i> Publish Advertisement</button>
+          <div style="margin-top:16px;"><button class="btn btn-primary" onclick="addAd()"><i class="fas fa-bullhorn"></i> Publish Advertisement</button></div>
         </div>
       </div>
-    </div>
 
-    <!-- Stats -->
-    <div class="stats-grid">
-      <div class="stat-card"><div class="stat-value" id="totalAds">0</div><div class="stat-label">Total Ads</div></div>
-      <div class="stat-card"><div class="stat-value" id="activeAds">0</div><div class="stat-label">Active Ads</div></div>
-      <div class="stat-card"><div class="stat-value" id="todayViews">0</div><div class="stat-label">Today's Views</div></div>
-      <div class="stat-card"><div class="stat-value" id="todayClicks">0</div><div class="stat-label">Today's Clicks</div></div>
-      <div class="stat-card"><div class="stat-value" id="avgCTR">0%</div><div class="stat-label">Avg CTR</div></div>
-    </div>
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-value" id="totalAds">0</div><div class="stat-label">Total Ads</div></div>
+        <div class="stat-card"><div class="stat-value" id="activeAds">0</div><div class="stat-label">Active Ads</div></div>
+        <div class="stat-card"><div class="stat-value" id="todayViews">0</div><div class="stat-label">Today's Views</div></div>
+        <div class="stat-card"><div class="stat-value" id="todayClicks">0</div><div class="stat-label">Today's Clicks</div></div>
+        <div class="stat-card"><div class="stat-value" id="avgCTR">0%</div><div class="stat-label">Avg CTR</div></div>
+      </div>
 
-    <!-- Table -->
-    <div class="section">
-      <div class="section-title"><i class="fas fa-list"></i> All Advertisements</div>
-      <div style="overflow-x:auto; border:1px solid var(--border); border-radius:8px;">
-        <table>
-          <thead>
-            <tr>
-              <th>Type</th><th>Image</th><th>Description</th>
-              <th>Total Views</th><th>Total Clicks</th><th>CTR</th>
-              <th>Today</th><th>Status</th><th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="adsTableBody">
-            <tr><td colspan="9" style="text-align:center; padding:40px; color:var(--text-secondary);">
-              <i class="fas fa-spinner fa-spin"></i> Loading...
-            </td></tr>
-          </tbody>
-        </table>
+      <div class="section">
+        <div class="section-title"><i class="fas fa-list"></i> All Advertisements</div>
+        <div style="overflow-x:auto; border:1px solid var(--border); border-radius:8px;">
+          <table>
+            <thead><tr><th>Type</th><th>Image</th><th>Description</th><th>Total Views</th><th>Total Clicks</th><th>CTR</th><th>Today</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="adsTableBody"><tr><td colspan="9" style="text-align:center; padding:40px; color:var(--text-secondary);"><i class="fas fa-spinner fa-spin"></i> Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+      <div id="chartsContainer"></div>
+      <div class="export-bar">
+        <div><strong><i class="fas fa-download"></i> Export Reports</strong><span style="color:var(--text-secondary); font-size:13px; margin-left:8px;">Professional PDF reports</span></div>
+        <button class="btn btn-success" onclick="exportAllReports()"><i class="fas fa-file-pdf"></i> Export All Ads</button>
       </div>
     </div>
 
-    <!-- Charts -->
-    <div id="chartsContainer"></div>
-
-    <!-- Export -->
-    <div class="export-bar">
-      <div><strong><i class="fas fa-download"></i> Export Reports</strong>
-        <span style="color:var(--text-secondary); font-size:13px; margin-left:8px;">Professional PDF reports for advertisers</span>
+    <!-- OFFERS SECTION -->
+    <div id="offers-section" style="display:none;">
+      <div class="section">
+        <div class="section-title"><i class="fas fa-plus-circle"></i> Create Premium Offer</div>
+        <div class="card" style="border-color:#f59e0b;">
+          <div class="form-grid">
+            <div class="form-group"><label>Offer Title</label><input type="text" id="offerDesc" placeholder="e.g., Annual Pro Plan"></div>
+            <div class="form-group"><label>Offer Price</label><input type="text" id="offerPrice" placeholder="e.g., $49.99"></div>
+            <div class="form-group"><label>End Date</label><input type="date" id="offerEndDate"></div>
+            <div class="form-group"><label>Button URL</label><input type="text" id="offerUrl" placeholder="https://example.com/premium"></div>
+          </div>
+          <div style="margin-top:16px;"><button class="btn btn-warning" onclick="addOffer()"><i class="fas fa-gift"></i> Publish Offer</button></div>
+        </div>
       </div>
-      <button class="btn btn-success" onclick="exportAllReports()"><i class="fas fa-file-pdf"></i> Export All Ads Summary</button>
+
+      <div class="section">
+        <div class="section-title"><i class="fas fa-list"></i> Premium Offers</div>
+        <div style="overflow-x:auto; border:1px solid var(--border); border-radius:8px;">
+          <table>
+            <thead><tr><th>Title</th><th>Price</th><th>End Date</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="offersTableBody"><tr><td colspan="5" style="text-align:center; padding:40px; color:var(--text-secondary);"><i class="fas fa-spinner fa-spin"></i> Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -244,9 +164,7 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
     
-    function getTodaySL() {
-      return new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Colombo' })).toISOString().split('T')[0];
-    }
+    function getTodaySL() { return new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Colombo' })).toISOString().split('T')[0]; }
     const today = getTodaySL();
     
     function updateTime() {
@@ -255,12 +173,18 @@
     }
     updateTime(); setInterval(updateTime, 30000);
     
-    const last10Days = Array.from({length:10}, (_,i) => {
-      const d = new Date(); d.setDate(d.getDate()-i);
-      return d.toISOString().split('T')[0];
-    });
+    const last10Days = Array.from({length:10}, (_,i) => { const d=new Date(); d.setDate(d.getDate()-i); return d.toISOString().split('T')[0]; });
     const charts = {};
 
+    // Tab Switch
+    window.switchTab = function(tab) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      event.target.classList.add('active');
+      document.getElementById('ads-section').style.display = tab === 'ads' ? 'block' : 'none';
+      document.getElementById('offers-section').style.display = tab === 'offers' ? 'block' : 'none';
+    };
+
+    // --- ADS FUNCTIONS ---
     async function addAd() {
       const type = document.getElementById('adType').value;
       const imageUrl = document.getElementById('imageUrl').value;
@@ -269,32 +193,22 @@
       let buttonUrl = document.getElementById('buttonUrl').value.trim();
       if (!buttonUrl.startsWith('http')) buttonUrl = 'https://' + buttonUrl;
       if (!imageUrl || !description || !buttonUrl) { alert('Please fill all fields!'); return; }
-
       try {
-        await db.collection('ads').add({
-          type, imageUrl, description, buttonText, buttonUrl,
-          active:true, totalViews:0, totalClicks:0,
-          dailyStats:{ [today]:{ views:0, clicks:0 } },
-          createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
-        alert('Published successfully!');
+        await db.collection('ads').add({ type, imageUrl, description, buttonText, buttonUrl, active:true, totalViews:0, totalClicks:0, dailyStats:{ [today]:{ views:0, clicks:0 } }, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+        alert('Published!');
         ['imageUrl','description','buttonText','buttonUrl'].forEach(id => document.getElementById(id).value = '');
       } catch(e) { alert('Error: ' + e.message); }
     }
-
     async function toggleAd(id, cur) { await db.collection('ads').doc(id).update({ active: !cur }); }
-    async function deleteAd(id) { if(confirm('Delete permanently?')) await db.collection('ads').doc(id).delete(); }
+    async function deleteAd(id) { if(confirm('Delete?')) await db.collection('ads').doc(id).delete(); }
     function ctr(v,c) { return v ? ((c/v)*100).toFixed(2)+'%' : '0%'; }
 
     db.collection('ads').orderBy('createdAt','desc').onSnapshot(snapshot => {
       const tbody = document.getElementById('adsTableBody');
       let tV=0, tC=0, dV=0, dC=0, aC=0;
-      if(snapshot.empty) {
-        tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--text-secondary);"><i class="fas fa-inbox"></i> No ads yet</td></tr>';
-        document.getElementById('chartsContainer').innerHTML = ''; return;
-      }
+      if(snapshot.empty) { tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--text-secondary);"><i class="fas fa-inbox"></i> No ads yet</td></tr>'; document.getElementById('chartsContainer').innerHTML = ''; return; }
       tbody.innerHTML = '';
-      document.getElementById('chartsContainer').innerHTML = '<div class="section" style="margin-top:24px;"><div class="section-title"><i class="fas fa-chart-area"></i> Performance Trends (Last 10 Days)</div></div>';
+      document.getElementById('chartsContainer').innerHTML = '<div class="section" style="margin-top:24px;"><div class="section-title"><i class="fas fa-chart-area"></i> Performance Trends</div></div>';
 
       snapshot.forEach(doc => {
         const ad = doc.data();
@@ -310,19 +224,11 @@
           if(ctx) {
             charts[doc.id] = new Chart(ctx, {
               type:'line',
-              data:{
-                labels: last10Days.map(d=>d.slice(5)),
-                datasets:[
-                  { label:'Views', data:last10Days.map(day=>(ad.dailyStats?.[day]?.views)||0), borderColor:'#3b82f6', backgroundColor:'rgba(59,130,246,0.08)', fill:true, tension:0.3, pointRadius:3, pointHoverRadius:5 },
-                  { label:'Clicks', data:last10Days.map(day=>(ad.dailyStats?.[day]?.clicks)||0), borderColor:'#10b981', backgroundColor:'rgba(16,185,129,0.08)', fill:true, tension:0.3, pointRadius:3, pointHoverRadius:5 }
-                ]
-              },
-              options:{
-                responsive:true, maintainAspectRatio:false,
-                plugins:{ legend:{ position:'top', labels:{ boxWidth:10, padding:12, font:{size:11} } }, tooltip:{ mode:'index', intersect:false, backgroundColor:'rgba(17,24,39,0.9)', padding:10, cornerRadius:6 } },
-                scales:{ y:{ beginAtZero:true, ticks:{ stepSize:1, font:{size:11} }, grid:{ color:'#f3f4f6' } }, x:{ grid:{ display:false }, ticks:{ font:{size:11} } } },
-                interaction:{ mode:'nearest', axis:'x', intersect:false }
-              }
+              data: { labels:last10Days.map(d=>d.slice(5)), datasets:[
+                { label:'Views', data:last10Days.map(day=>(ad.dailyStats?.[day]?.views)||0), borderColor:'#3b82f6', backgroundColor:'rgba(59,130,246,0.08)', fill:true, tension:0.3, pointRadius:3 },
+                { label:'Clicks', data:last10Days.map(day=>(ad.dailyStats?.[day]?.clicks)||0), borderColor:'#10b981', backgroundColor:'rgba(16,185,129,0.08)', fill:true, tension:0.3, pointRadius:3 }
+              ]},
+              options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{ position:'top', labels:{ boxWidth:10, padding:12 } }, tooltip:{ mode:'index' } }, scales:{ y:{ beginAtZero:true, ticks:{ stepSize:1 }, grid:{ color:'#f3f4f6' } }, x:{ grid:{ display:false } } } }
             });
           }
         }, 50);
@@ -337,20 +243,13 @@
           <td><span style="color:#3b82f6;font-weight:600;">${ts.views}</span>v / <span style="color:#10b981;font-weight:600;">${ts.clicks}</span>c</td>
           <td><span class="status-badge ${ad.active?'status-active':'status-paused'}">${ad.active?'Active':'Paused'}</span></td>
           <td style="white-space:nowrap;">
-            <button class="btn btn-warning btn-sm" onclick="toggleAd('${doc.id}',${ad.active})" title="${ad.active?'Pause':'Activate'}"><i class="fas ${ad.active?'fa-pause':'fa-play'}"></i></button>
-            <button class="btn btn-danger btn-sm" onclick="deleteAd('${doc.id}')" title="Delete"><i class="fas fa-trash"></i></button>
-            <button class="btn btn-success btn-sm" onclick="exportAdPDF('${doc.id}')" title="Download Report"><i class="fas fa-file-pdf"></i></button>
+            <button class="btn btn-warning btn-sm" onclick="toggleAd('${doc.id}',${ad.active})"><i class="fas ${ad.active?'fa-pause':'fa-play'}"></i></button>
+            <button class="btn btn-danger btn-sm" onclick="deleteAd('${doc.id}')"><i class="fas fa-trash"></i></button>
+            <button class="btn btn-success btn-sm" onclick="exportAdPDF('${doc.id}')"><i class="fas fa-file-pdf"></i></button>
           </td>
         </tr>`;
 
-        document.getElementById('chartsContainer').innerHTML += `
-          <div class="chart-card">
-            <div class="chart-header">
-              <div class="chart-title">${ad.description}</div>
-              <div class="chart-meta">Total: ${ad.totalViews||0} views · ${ad.totalClicks||0} clicks · CTR: ${c}</div>
-            </div>
-            <div class="chart-container"><canvas id="chart-${doc.id}"></canvas></div>
-          </div>`;
+        document.getElementById('chartsContainer').innerHTML += `<div class="chart-card"><div class="chart-header"><div class="chart-title">${ad.description}</div><div class="chart-meta">Total: ${ad.totalViews||0} views · ${ad.totalClicks||0} clicks · CTR: ${c}</div></div><div class="chart-container"><canvas id="chart-${doc.id}"></canvas></div></div>`;
       });
 
       document.getElementById('totalAds').textContent = snapshot.size;
@@ -360,7 +259,46 @@
       document.getElementById('avgCTR').textContent = ctr(tV,tC);
     });
 
-    // Professional PDF Export (Individual)
+    // --- OFFERS FUNCTIONS ---
+    async function addOffer() {
+      const description = document.getElementById('offerDesc').value;
+      const price = document.getElementById('offerPrice').value;
+      const endDate = document.getElementById('offerEndDate').value;
+      const buttonUrl = document.getElementById('offerUrl').value.trim();
+      if (!description || !price || !endDate || !buttonUrl) { alert('Please fill all offer fields!'); return; }
+      try {
+        await db.collection('offers').add({ description, price, endDate, buttonUrl, active:true, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+        alert('Offer published!');
+        ['offerDesc','offerPrice','offerEndDate','offerUrl'].forEach(id => document.getElementById(id).value = '');
+      } catch(e) { alert('Error: ' + e.message); }
+    }
+    async function toggleOffer(id, cur) { await db.collection('offers').doc(id).update({ active: !cur }); }
+    async function deleteOffer(id) { if(confirm('Delete offer?')) await db.collection('offers').doc(id).delete(); }
+
+    db.collection('offers').orderBy('endDate','desc').onSnapshot(snapshot => {
+      const tbody = document.getElementById('offersTableBody');
+      if(snapshot.empty) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--text-secondary);"><i class="fas fa-inbox"></i> No offers yet</td></tr>'; return; }
+      tbody.innerHTML = '';
+      snapshot.forEach(doc => {
+        const offer = doc.data();
+        const isExpired = offer.endDate < today;
+        const statusClass = offer.active && !isExpired ? 'status-live' : 'status-paused';
+        const statusText = isExpired ? 'Expired' : (offer.active ? 'Live' : 'Inactive');
+        
+        tbody.innerHTML += `<tr>
+          <td><strong>${offer.description}</strong></td>
+          <td style="color:#dc2626; font-weight:700;">${offer.price}</td>
+          <td>${offer.endDate}</td>
+          <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+          <td style="white-space:nowrap;">
+            <button class="btn btn-warning btn-sm" onclick="toggleOffer('${doc.id}',${offer.active})"><i class="fas ${offer.active?'fa-pause':'fa-play'}"></i></button>
+            <button class="btn btn-danger btn-sm" onclick="deleteOffer('${doc.id}')"><i class="fas fa-trash"></i></button>
+          </td>
+        </tr>`;
+      });
+    });
+
+    // --- PDF EXPORT (Kept existing) ---
     async function exportAdPDF(adId) {
       const {jsPDF} = window.jspdf;
       const pdf = new jsPDF('p','mm','a4');
@@ -376,80 +314,56 @@
       const ad = doc.data(); if(!ad) return;
       
       pdf.setFillColor(249,250,251); pdf.roundedRect(18,42,174,28,3,3,'F');
-      pdf.setFontSize(11); pdf.setFont(undefined,'bold'); pdf.setTextColor(17,24,39);
-      pdf.text('Campaign Details',22,50);
+      pdf.setFontSize(11); pdf.setFont(undefined,'bold'); pdf.text('Campaign Details',22,50);
       pdf.setFontSize(10); pdf.setFont(undefined,'normal'); pdf.setTextColor(75,85,99);
-      pdf.text(`Type: ${ad.type.toUpperCase()}`,22,58);
-      pdf.text(`Description: ${ad.description}`,80,58);
-      pdf.text(`Button: "${ad.buttonText}"`,22,64);
-      pdf.text(`Link: ${ad.buttonUrl}`,80,64);
+      pdf.text(`Type: ${ad.type.toUpperCase()}`,22,58); pdf.text(`Description: ${ad.description}`,80,58);
+      pdf.text(`Button: "${ad.buttonText}"`,22,64); pdf.text(`Link: ${ad.buttonUrl}`,80,64);
       
-      const ts = ad.dailyStats?.[today]||{views:0,clicks:0};
-      const c = ctr(ad.totalViews||0, ad.totalClicks||0);
-      
+      const ts = ad.dailyStats?.[today]||{views:0,clicks:0}; const c=ctr(ad.totalViews||0, ad.totalClicks||0);
       pdf.setFontSize(11); pdf.setFont(undefined,'bold'); pdf.text('Performance Metrics',18,82);
-      pdf.setDrawColor(229,231,235); pdf.line(18,85,192,85);
+      pdf.line(18,85,192,85);
       
-      const m = [{l:'Total Views',v:ad.totalViews||0,c:[59,130,246]},{l:'Total Clicks',v:ad.totalClicks||0,c:[16,185,129]},
-                 {l:'CTR',v:c,c:[245,158,11]},{l:'Today Views',v:ts.views,c:[59,130,246]},{l:'Today Clicks',v:ts.clicks,c:[16,185,129]}];
       let mx=18;
-      m.forEach(i=>{
+      [{l:'Total Views',v:ad.totalViews||0,c:[59,130,246]},{l:'Total Clicks',v:ad.totalClicks||0,c:[16,185,129]},{l:'CTR',v:c,c:[245,158,11]},{l:'Today',v:ts.views,c:[59,130,246]},{l:'Clicks',v:ts.clicks,c:[16,185,129]}].forEach(i=>{
         pdf.setFontSize(9); pdf.setFont(undefined,'normal'); pdf.setTextColor(107,114,128); pdf.text(i.l,mx,93);
-        pdf.setFontSize(18); pdf.setFont(undefined,'bold'); pdf.setTextColor(...i.c); pdf.text(String(i.v),mx,102);
-        mx+=35;
+        pdf.setFontSize(18); pdf.setFont(undefined,'bold'); pdf.setTextColor(...i.c); pdf.text(String(i.v),mx,102); mx+=35;
       });
       
-      pdf.setFontSize(11); pdf.setFont(undefined,'bold'); pdf.setTextColor(17,24,39);
       pdf.text('Daily Breakdown (Last 10 Days)',18,118);
       pdf.setFillColor(249,250,251); pdf.rect(18,122,174,8,'F');
-      pdf.setFontSize(9); pdf.setFont(undefined,'bold'); pdf.setTextColor(75,85,99);
-      pdf.text('Date',22,128); pdf.text('Views',75,128); pdf.text('Clicks',115,128); pdf.text('CTR',155,128);
+      pdf.setFontSize(9); pdf.setFont(undefined,'bold'); pdf.text('Date',22,128); pdf.text('Views',75,128); pdf.text('Clicks',115,128); pdf.text('CTR',155,128);
       pdf.line(18,130,192,130);
-      
       let yPos=138;
       last10Days.forEach((day,i)=>{
-        const ds = ad.dailyStats?.[day]||{views:0,clicks:0};
+        const ds=ad.dailyStats?.[day]||{views:0,clicks:0};
         if(i%2===0){pdf.setFillColor(250,250,250);pdf.rect(18,yPos-5,174,7,'F');}
-        pdf.setFontSize(9);pdf.setFont(undefined,'normal');pdf.setTextColor(75,85,99);
-        pdf.text(day.slice(5),22,yPos);pdf.text(String(ds.views),75,yPos);pdf.text(String(ds.clicks),115,yPos);pdf.text(ctr(ds.views,ds.clicks),155,yPos);
-        yPos+=7;
+        pdf.setFontSize(9);pdf.text(day.slice(5),22,yPos);pdf.text(String(ds.views),75,yPos);pdf.text(String(ds.clicks),115,yPos);pdf.text(ctr(ds.views,ds.clicks),155,yPos); yPos+=7;
       });
       
-      pdf.setFontSize(8);pdf.setTextColor(160,174,192);
-      pdf.text('Page 1 of 1',18,285);pdf.text('Generated by Ad Manager Pro | Confidential',192,285,{align:'right'});
+      pdf.setFontSize(8);pdf.setTextColor(160,174,192); pdf.text('Page 1 of 1',18,285);pdf.text('Generated by Ad Manager Pro | Confidential',192,285,{align:'right'});
       pdf.save(`AdReport_${ad.description.replace(/[^a-z0-9]/gi,'_').substring(0,25)}_${today}.pdf`);
     }
 
     async function exportAllReports() {
-      const {jsPDF} = window.jspdf;
-      const pdf = new jsPDF('l','mm','a4');
+      const {jsPDF} = window.jspdf; const pdf = new jsPDF('l','mm','a4');
       const logo = 'https://i.postimg.cc/htkJwcMc/cropped-circle-image-(29).png';
       try{pdf.addImage(logo,'PNG',18,18,18,18);}catch(e){}
       pdf.setDrawColor(59,130,246);pdf.setLineWidth(0.8);pdf.line(42,28,275,28);
-      pdf.setFontSize(22);pdf.setFont(undefined,'bold');pdf.setTextColor(17,24,39);
-      pdf.text('All Advertisements - Summary Report',45,24);
-      pdf.setFontSize(10);pdf.setFont(undefined,'normal');pdf.setTextColor(107,114,128);
-      pdf.text(`Generated: ${new Date().toLocaleString('en-US',{timeZone:'Asia/Colombo'})} | Period: Last 10 Days`,45,32);
-      
+      pdf.setFontSize(22);pdf.setFont(undefined,'bold');pdf.text('All Advertisements - Summary Report',45,24);
+      pdf.setFontSize(10);pdf.setFont(undefined,'normal');pdf.text(`Generated: ${new Date().toLocaleString('en-US',{timeZone:'Asia/Colombo'})} | Period: Last 10 Days`,45,32);
       const snapshot = await db.collection('ads').orderBy('createdAt','desc').get();
       pdf.setFillColor(249,250,251);pdf.rect(18,42,254,10,'F');
-      pdf.setFontSize(10);pdf.setFont(undefined,'bold');pdf.setTextColor(75,85,99);
-      pdf.text('Ad',22,49);pdf.text('Type',85,49);pdf.text('Total Views',115,49);pdf.text('Total Clicks',160,49);pdf.text('CTR',200,49);pdf.text('Today',230,49);
+      pdf.setFontSize(10);pdf.setFont(undefined,'bold');pdf.text('Ad',22,49);pdf.text('Type',85,49);pdf.text('Total Views',115,49);pdf.text('Total Clicks',160,49);pdf.text('CTR',200,49);pdf.text('Today',230,49);
       pdf.line(18,52,272,52);
-      
       let yPos=60;
       snapshot.forEach((doc,i)=>{
         if(yPos>185){pdf.addPage();yPos=20;}
         const ad=doc.data();const ts=ad.dailyStats?.[today]||{views:0,clicks:0};const c=ctr(ad.totalViews||0,ad.totalClicks||0);
         if(i%2===0){pdf.setFillColor(250,250,250);pdf.rect(18,yPos-4,254,8,'F');}
-        pdf.setFontSize(9);pdf.setFont(undefined,'normal');pdf.setTextColor(45,55,72);
-        pdf.text(ad.description.substring(0,45),22,yPos);
-        pdf.setTextColor(107,114,128);pdf.text(ad.type.toUpperCase(),85,yPos);
-        pdf.setTextColor(75,85,99);
-        pdf.text(String(ad.totalViews||0),115,yPos);pdf.text(String(ad.totalClicks||0),160,yPos);pdf.text(c,200,yPos);pdf.text(`${ts.views}v/${ts.clicks}c`,230,yPos);
-        yPos+=9;
+        pdf.setFontSize(9);pdf.setFont(undefined,'normal');pdf.text(ad.description.substring(0,45),22,yPos);
+        pdf.setTextColor(107,114,128);pdf.text(ad.type.toUpperCase(),85,yPos);pdf.setTextColor(75,85,99);
+        pdf.text(String(ad.totalViews||0),115,yPos);pdf.text(String(ad.totalClicks||0),160,yPos);pdf.text(c,200,yPos);pdf.text(`${ts.views}v/${ts.clicks}c`,230,yPos); yPos+=9;
       });
-      
       const pc=pdf.internal.getNumberOfPages();
       for(let p=1;p<=pc;p++){pdf.setPage(p);pdf.setFontSize(8);pdf.setTextColor(160,174,192);pdf.text(`Page ${p} of ${pc}`,18,203);pdf.text('Generated by Ad Manager Pro | Confidential',272,203,{align:'right'});}
       pdf.save(`AllAds_Summary_${today}.pdf`);
