@@ -1,4 +1,4 @@
-// ads.js - Professional Ad System v6.4 (Premium Offer Professional UI)
+// ads.js - Professional Ad System v6.7 (Optimized Offer & Clean Code)
 // =====================================
 
 const firebaseConfig = {
@@ -132,14 +132,95 @@ window.toggleInfoTooltip = function() {
   tooltip.style.transform = isVisible ? 'translateY(8px)' : 'translateY(0)';
 };
 
-// 🎁 Professional Premium Offer Container
+//  Premium Offer Container (Optimized to prevent flickering)
 function renderPremiumOffer(offer) {
   const container = document.getElementById('offer-ad-container');
   if (!container) return;
 
   const endDate = new Date(offer.endDate + 'T23:59:59').getTime();
-  
-  function updateCountdown() {
+
+  // 1. Build HTML Structure Once (prevents reloading/flickering)
+  container.innerHTML = `
+    <style>
+      .offer-banner {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-left: 4px solid #f59e0b;
+        border-radius: 8px;
+        padding: 16px 40px 16px 16px;
+        margin: 20px auto;
+        max-width: 800px;
+        width: 100%;
+        box-sizing: border-box;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+        animation: offerFadeIn 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+      @keyframes offerFadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+      
+      .offer-close-btn {
+        position: absolute; top: 10px; right: 12px;
+        background: #f3f4f6; border: none; color: #6b7280;
+        width: 24px; height: 24px; border-radius: 50%;
+        cursor: pointer; display: flex; align-items: center; justify-content: center;
+        font-size: 16px; font-weight: bold; transition: all 0.2s; line-height: 1; z-index: 2;
+      }
+      .offer-close-btn:hover { background: #e5e7eb; color: #374151; transform: scale(1.05); }
+      
+      .offer-icon-box { width: 48px; height: 48px; background: #fffbeb; border: 1px solid #fde68a; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 20px; color: #d97706; flex-shrink: 0; }
+      .offer-info { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
+      .offer-title { font-size: 15px; font-weight: 700; color: #111827; margin: 0; display: flex; align-items: center; gap: 6px; }
+      .offer-badge { background: #fef3c7; color: #92400e; font-size: 9px; font-weight: 700; padding: 1px 6px; border-radius: 4px; text-transform: uppercase; }
+      .offer-desc { font-size: 12px; color: #6b7280; margin: 0; line-height: 1.3; }
+      .offer-price { font-size: 18px; font-weight: 800; color: #dc2626; line-height: 1; margin-top: 2px; }
+      
+      .offer-right { display: flex; align-items: center; gap: 16px; flex-shrink: 0; }
+      .offer-timer { display: flex; gap: 6px; }
+      .timer-box { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 4px; padding: 6px 8px; text-align: center; min-width: 38px; }
+      .timer-value { font-size: 14px; font-weight: 700; color: #111827; line-height: 1; font-family: monospace; }
+      .timer-label { font-size: 8px; color: #9ca3af; text-transform: uppercase; font-weight: 600; margin-top: 2px; }
+      
+      .offer-btn { padding: 8px 16px; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: #fff; text-decoration: none; border-radius: 5px; font-weight: 600; font-size: 13px; box-shadow: 0 2px 4px rgba(245,158,11,0.2); transition: all 0.2s ease; white-space: nowrap; }
+      .offer-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 8px rgba(245,158,11,0.3); }
+      
+      @media (max-width: 768px) {
+        .offer-banner { flex-direction: column; text-align: center; padding: 16px 40px 12px 12px; margin: 15px 10px; gap: 12px; border-left: none; border-top: 4px solid #f59e0b; }
+        .offer-close-btn { top: 8px; right: 8px; }
+        .offer-icon-box { display: none; }
+        .offer-info { align-items: center; }
+        .offer-title { justify-content: center; }
+        .offer-right { flex-direction: column; gap: 10px; width: 100%; }
+        .offer-timer { justify-content: center; width: 100%; }
+        .timer-box { flex: 1; min-width: auto; }
+        .offer-btn { width: 100%; }
+      }
+    </style>
+    <div class="offer-banner">
+      <button class="offer-close-btn" onclick="this.parentElement.parentElement.innerHTML=''">&times;</button>
+      <div class="offer-icon-box"><i class="fas fa-crown"></i></div>
+      <div class="offer-info">
+        <p class="offer-title">Premium Upgrade <span class="offer-badge">LIMITED</span></p>
+        <p class="offer-desc">${offer.description}</p>
+        <div class="offer-price">${offer.price}</div>
+      </div>
+      <div class="offer-right">
+        <div class="offer-timer">
+          <div class="timer-box"><div class="timer-value" id="offer-days">00</div><div class="timer-label">D</div></div>
+          <div class="timer-box"><div class="timer-value" id="offer-hours">00</div><div class="timer-label">H</div></div>
+          <div class="timer-box"><div class="timer-value" id="offer-mins">00</div><div class="timer-label">M</div></div>
+          <div class="timer-box"><div class="timer-value" id="offer-secs">00</div><div class="timer-label">S</div></div>
+        </div>
+        <a href="${fixUrl(offer.buttonUrl)}" class="offer-btn" target="_blank">Get Premium</a>
+      </div>
+    </div>`;
+
+  // 2. Timer Logic (Updates DOM directly without rebuilding HTML)
+  function updateTimer() {
     const now = Date.now();
     const diff = endDate - now;
     
@@ -154,103 +235,25 @@ function renderPremiumOffer(offer) {
     const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
     const seconds = Math.floor((diff % (1000 * 60)) / 1000);
     
-    container.innerHTML = `
-      <style>
-        .offer-banner {
-          background: #ffffff;
-          border: 1px solid #e2e8f0;
-          border-left: 4px solid #f59e0b;
-          border-radius: 8px;
-          padding: 18px 24px;
-          margin: 20px auto;
-          max-width: 800px;
-          width: 100%;
-          box-sizing: border-box;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 24px;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.02);
-          animation: offerFadeIn 0.4s ease;
-          position: relative;
-          overflow: hidden;
-        }
-        .offer-banner::before {
-          content: '';
-          position: absolute;
-          top: 0; left: 0; width: 100%; height: 100%;
-          background: radial-gradient(circle at top right, rgba(245,158,11,0.08) 0%, transparent 40%);
-          pointer-events: none;
-        }
-        .offer-left { display: flex; align-items: center; gap: 16px; flex: 1; min-width: 0; }
-        .offer-icon-box {
-          width: 48px; height: 48px; background: #fffbeb; border: 1px solid #fde68a;
-          border-radius: 8px; display: flex; align-items: center; justify-content: center;
-          font-size: 22px; color: #d97706; flex-shrink: 0;
-        }
-        .offer-info { display: flex; flex-direction: column; gap: 4px; }
-        .offer-title { font-size: 16px; font-weight: 700; color: #0f172a; margin: 0; display: flex; align-items: center; gap: 8px; }
-        .offer-badge { background: #fef3c7; color: #92400e; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
-        .offer-desc { font-size: 13px; color: #64748b; margin: 0; }
-        .offer-price { font-size: 24px; font-weight: 800; color: #dc2626; line-height: 1; }
-        
-        .offer-right { display: flex; align-items: center; gap: 16px; flex-shrink: 0; }
-        .offer-timer { display: flex; gap: 8px; }
-        .timer-box {
-          background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px;
-          padding: 8px 10px; text-align: center; min-width: 48px;
-          box-shadow: 0 1px 2px rgba(0,0,0,0.03);
-        }
-        .timer-value { font-size: 18px; font-weight: 700; color: #0f172a; line-height: 1; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
-        .timer-label { font-size: 9px; color: #64748b; text-transform: uppercase; font-weight: 600; margin-top: 2px; letter-spacing: 0.5px; }
-        
-        .offer-btn {
-          padding: 12px 24px; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-          color: #fff; text-decoration: none; border-radius: 8px; font-weight: 700;
-          font-size: 14px; box-shadow: 0 4px 12px rgba(245,158,11,0.25);
-          transition: all 0.2s ease; white-space: nowrap;
-        }
-        .offer-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(245,158,11,0.35); background: linear-gradient(135deg, #d97706 0%, #b45309 100%); }
-        
-        @media (max-width: 768px) {
-          .offer-banner { flex-direction: column; text-align: center; padding: 16px; margin: 15px 10px; gap: 16px; border-left: none; border-top: 4px solid #f59e0b; }
-          .offer-left { flex-direction: column; align-items: center; }
-          .offer-info { align-items: center; }
-          .offer-title { justify-content: center; }
-          .offer-right { flex-direction: column; gap: 12px; width: 100%; }
-          .offer-timer { justify-content: center; width: 100%; }
-          .timer-box { flex: 1; min-width: auto; }
-          .offer-btn { width: 100%; }
-        }
-        @keyframes offerFadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-      </style>
-      <div class="offer-banner">
-        <div class="offer-left">
-          <div class="offer-icon-box"><i class="fas fa-crown"></i></div>
-          <div class="offer-info">
-            <p class="offer-title">Premium Upgrade <span class="offer-badge">LIMITED</span></p>
-            <p class="offer-desc">${offer.description}</p>
-            <div class="offer-price">${offer.price}</div>
-          </div>
-        </div>
-        <div class="offer-right">
-          <div class="offer-timer">
-            <div class="timer-box"><div class="timer-value">${String(days).padStart(2,'0')}</div><div class="timer-label">Days</div></div>
-            <div class="timer-box"><div class="timer-value">${String(hours).padStart(2,'0')}</div><div class="timer-label">Hrs</div></div>
-            <div class="timer-box"><div class="timer-value">${String(minutes).padStart(2,'0')}</div><div class="timer-label">Min</div></div>
-            <div class="timer-box"><div class="timer-value">${String(seconds).padStart(2,'0')}</div><div class="timer-label">Sec</div></div>
-          </div>
-          <a href="${fixUrl(offer.buttonUrl)}" class="offer-btn" target="_blank">Get Premium</a>
-        </div>
-      </div>`;
+    // Update text directly
+    const dEl = document.getElementById('offer-days');
+    const hEl = document.getElementById('offer-hours');
+    const mEl = document.getElementById('offer-mins');
+    const sEl = document.getElementById('offer-secs');
+
+    if (dEl) dEl.textContent = String(days).padStart(2, '0');
+    if (hEl) hEl.textContent = String(hours).padStart(2, '0');
+    if (mEl) mEl.textContent = String(minutes).padStart(2, '0');
+    if (sEl) sEl.textContent = String(seconds).padStart(2, '0');
   }
   
-  updateCountdown();
+  // Run immediately then every second
+  updateTimer();
   if (offerInterval) clearInterval(offerInterval);
-  offerInterval = setInterval(updateCountdown, 1000);
+  offerInterval = setInterval(updateTimer, 1000);
 }
 
-// 📍 Anchor Ad
+//  Anchor Ad
 function renderAnchorAd(ad, id) {
   const container = document.getElementById('anchor-ad-container');
   if (!container) return;
