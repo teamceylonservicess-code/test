@@ -1,4 +1,4 @@
-// ads.js - Professional Ad System v6.2 (Premium Offer Refined)
+// ads.js - Professional Ad System v6.3 (Offer Matches Banner Size)
 // =====================================
 
 const firebaseConfig = {
@@ -132,7 +132,7 @@ window.toggleInfoTooltip = function() {
   tooltip.style.transform = isVisible ? 'translateY(8px)' : 'translateY(0)';
 };
 
-// 🎁 Professional Premium Offer Banner (Exact Banner Container Size)
+//  Premium Offer (Exact Banner Container Dimensions)
 function renderPremiumOffer(offer) {
   const container = document.getElementById('offer-ad-container');
   if (!container) return;
@@ -154,43 +154,48 @@ function renderPremiumOffer(offer) {
     const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
     const seconds = Math.floor((diff % (1000 * 60)) / 1000);
     
+    // Exact banner sizing: max-width: 800px, padding: 16px, border-radius: 8px
     container.innerHTML = `
       <style>
         .offer-banner {
-          background: #ffffff;
-          border: 1px solid #e5e7eb;
+          background: linear-gradient(to right, #fff 0%, #fffbeb 100%);
+          border: 1px solid #f59e0b; /* Matches banner border style but premium color */
           border-left: 4px solid #f59e0b;
           border-radius: 8px;
           padding: 16px 20px;
           margin: 20px auto;
-          max-width: 800px;
+          max-width: 800px; /* ✅ Matches Banner Container Width */
+          width: 100%;
+          box-sizing: border-box;
           display: flex;
           align-items: center;
           justify-content: space-between;
           gap: 20px;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-          transition: all 0.3s;
-          position: relative;
-          overflow: hidden;
+          box-shadow: 0 4px 15px rgba(245,158,11,0.1);
+          animation: fadeIn 0.4s ease;
         }
-        .offer-banner::before {
-          content: '';
-          position: absolute;
-          top: 0; left: 0; width: 100%; height: 100%;
-          background: linear-gradient(135deg, rgba(245,158,11,0.03) 0%, transparent 60%);
-          pointer-events: none;
+        .offer-icon { 
+          font-size: 28px; 
+          color: #f59e0b; 
+          flex-shrink: 0; 
+          background: #fff;
+          width: 48px; height: 48px; /* Matches banner logo size roughly */
+          display: flex; align-items: center; justify-content: center;
+          border-radius: 6px;
+          border: 1px solid #fcd34d;
         }
-        .offer-banner:hover { box-shadow: 0 4px 16px rgba(245,158,11,0.12); transform: translateY(-1px); }
-        .offer-icon { font-size: 26px; color: #f59e0b; flex-shrink: 0; }
         .offer-details { flex: 1; min-width: 0; }
-        .offer-title { font-size: 14px; font-weight: 700; color: #111827; margin: 0 0 4px; display: flex; align-items: center; gap: 6px; }
-        .offer-badge { background: #fef3c7; color: #92400e; font-size: 10px; padding: 2px 6px; border-radius: 10px; font-weight: 600; }
+        .offer-title { font-size: 15px; font-weight: 700; color: #111827; margin: 0 0 4px; }
+        .offer-badge { background: #fef3c7; color: #92400e; font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: 700; margin-left: 6px; vertical-align: middle; }
         .offer-desc { font-size: 13px; color: #6b7280; margin: 0 0 6px; }
         .offer-price { font-size: 22px; font-weight: 800; color: #dc2626; }
-        .offer-timer { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
-        .timer-box { background: #f3f4f6; padding: 6px 10px; border-radius: 6px; text-align: center; min-width: 44px; }
+        
+        .offer-right { display: flex; align-items: center; gap: 16px; flex-shrink: 0; }
+        .offer-timer { display: flex; gap: 6px; }
+        .timer-box { background: #fff; border: 1px solid #e5e7eb; padding: 6px 8px; border-radius: 6px; text-align: center; min-width: 40px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
         .timer-value { font-size: 16px; font-weight: 700; color: #111827; line-height: 1; }
-        .timer-label { font-size: 9px; color: #6b7280; text-transform: uppercase; margin-top: 2px; }
+        .timer-label { font-size: 9px; color: #6b7280; text-transform: uppercase; margin-top: 2px; font-weight: 600; }
+        
         .offer-btn {
           padding: 10px 20px;
           background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
@@ -202,43 +207,43 @@ function renderPremiumOffer(offer) {
           box-shadow: 0 4px 12px rgba(245,158,11,0.3);
           transition: all 0.2s;
           white-space: nowrap;
-          flex-shrink: 0;
         }
         .offer-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(245,158,11,0.4); }
         
+        /* Mobile: Stack like banner */
         @media (max-width: 768px) {
           .offer-banner {
             flex-direction: column;
             text-align: center;
-            padding: 14px 16px;
+            padding: 14px;
             margin: 15px 10px;
             gap: 14px;
             border-left: none;
             border-top: 4px solid #f59e0b;
           }
           .offer-icon { display: none; }
-          .offer-details { width: 100%; }
-          .offer-title { justify-content: center; }
+          .offer-right { flex-direction: column; gap: 10px; width: 100%; }
           .offer-timer { justify-content: center; width: 100%; }
-          .timer-box { padding: 5px 8px; min-width: 38px; }
-          .timer-value { font-size: 14px; }
-          .offer-btn { width: 100%; padding: 11px; font-size: 14px; }
+          .timer-box { flex: 1; }
+          .offer-btn { width: 100%; }
         }
       </style>
       <div class="offer-banner">
-        <i class="fas fa-crown offer-icon"></i>
+        <div class="offer-icon"><i class="fas fa-crown"></i></div>
         <div class="offer-details">
-          <p class="offer-title">Special Premium Offer <span class="offer-badge">LIMITED</span></p>
+          <p class="offer-title">Premium Upgrade <span class="offer-badge">OFFER</span></p>
           <p class="offer-desc">${offer.description}</p>
           <div class="offer-price">${offer.price}</div>
         </div>
-        <div class="offer-timer">
-          <div class="timer-box"><div class="timer-value">${String(days).padStart(2,'0')}</div><div class="timer-label">Days</div></div>
-          <div class="timer-box"><div class="timer-value">${String(hours).padStart(2,'0')}</div><div class="timer-label">Hrs</div></div>
-          <div class="timer-box"><div class="timer-value">${String(minutes).padStart(2,'0')}</div><div class="timer-label">Min</div></div>
-          <div class="timer-box"><div class="timer-value">${String(seconds).padStart(2,'0')}</div><div class="timer-label">Sec</div></div>
+        <div class="offer-right">
+          <div class="offer-timer">
+            <div class="timer-box"><div class="timer-value">${String(days).padStart(2,'0')}</div><div class="timer-label">D</div></div>
+            <div class="timer-box"><div class="timer-value">${String(hours).padStart(2,'0')}</div><div class="timer-label">H</div></div>
+            <div class="timer-box"><div class="timer-value">${String(minutes).padStart(2,'0')}</div><div class="timer-label">M</div></div>
+            <div class="timer-box"><div class="timer-value">${String(seconds).padStart(2,'0')}</div><div class="timer-label">S</div></div>
+          </div>
+          <a href="${fixUrl(offer.buttonUrl)}" class="offer-btn" target="_blank">Get Now</a>
         </div>
-        <a href="${fixUrl(offer.buttonUrl)}" class="offer-btn" target="_blank">Get Premium</a>
       </div>`;
   }
   
@@ -247,7 +252,7 @@ function renderPremiumOffer(offer) {
   offerInterval = setInterval(updateCountdown, 1000);
 }
 
-// 📍 Anchor Ad (Fixed: shows up arrow when collapsed)
+// 📍 Anchor Ad
 function renderAnchorAd(ad, id) {
   const container = document.getElementById('anchor-ad-container');
   if (!container) return;
@@ -326,7 +331,7 @@ function trackAdEvent(adId, type) {
 
 // 🚀 Initialize
 document.addEventListener('DOMContentLoaded', () => {
-  console.log('🔄 Loading ads from Firebase...');
+  console.log('🔄 Loading ads...');
   
   db.collection('ads').where('active', '==', true).onSnapshot(snapshot => {
     bannerAdsQueue = [];
@@ -338,8 +343,6 @@ document.addEventListener('DOMContentLoaded', () => {
       if (data.type === 'anchor') anchorAd = { ...data, id: doc.id };
     });
     
-    console.log(`✅ Found ${bannerAdsQueue.length} banner ads`);
-    
     window.carousels = [];
     const containerIds = ['banner-ad-container-1', 'banner-ad-container-2', 'banner-ad-container'];
     containerIds.forEach(id => {
@@ -349,7 +352,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (anchorAd && document.getElementById('anchor-ad-container')) {
       renderAnchorAd(anchorAd, anchorAd.id);
     }
-  }, error => console.error('❌ Firebase error:', error));
+  }, error => console.error('❌ Ads error:', error));
 
   db.collection('offers').where('active', '==', true).onSnapshot(snapshot => {
     let bestOffer = null;
