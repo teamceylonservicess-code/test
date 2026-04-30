@@ -1,4 +1,4 @@
-// ads.js - Professional Ad System v2.0
+// ads.js - Professional Ad System v3.0 (Auto-Slide + Timezone Fix)
 // =====================================
 
 const firebaseConfig = {
@@ -13,10 +13,32 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
-const today = new Date().toISOString().split('T')[0];
+
+// 🇱🇰 Get today's date in Sri Lanka timezone (Asia/Colombo)
+function getTodaySL() {
+  const now = new Date();
+  const slTime = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Colombo' }));
+  return slTime.toISOString().split('T')[0];
+}
+const today = getTodaySL();
+
+// 🕐 Get today's start time in SL timezone (for display)
+function getTodayStartTimeSL() {
+  const now = new Date();
+  const slTime = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Colombo' }));
+  return slTime.toLocaleTimeString('en-US', { 
+    hour: '2-digit', 
+    minute: '2-digit',
+    hour12: true,
+    timeZone: 'Asia/Colombo'
+  });
+}
 
 const viewedAds = new Set();
 const clickedAds = new Set();
+let bannerAdsQueue = [];
+let currentBannerIndex = 0;
+let bannerSlideInterval = null;
 
 // Auto-fix URLs
 function fixUrl(url) {
@@ -29,30 +51,56 @@ function fixUrl(url) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  db.collection('ads').where('active', '==', true).onSnapshot(snapshot => {
-    snapshot.docChanges().forEach(change => {
-      if (change.type === 'added' || change.type === 'modified') {
-        renderAd(change.doc.data(), change.doc.id);
-      }
+  // Load banner ads first for carousel setup
+  db.collection('ads')
+    .where('active', '==', true)
+    .where('type', '==', 'banner')
+    .onSnapshot(snapshot => {
+      bannerAdsQueue = [];
+      snapshot.forEach(doc => bannerAdsQueue.push({ ...doc.data(), id: doc.id }));
+      startBannerCarousel();
     });
-  });
+
+  // Load anchor ads separately
+  db.collection('ads')
+    .where('active', '==', true)
+    .where('type', '==', 'anchor')
+    .onSnapshot(snapshot => {
+      snapshot.docChanges().forEach(change => {
+        if (change.type === 'added' || change.type === 'modified') {
+          renderAnchorAd(change.doc.data(), change.doc.id);
+        }
+      });
+    });
 });
 
-function renderAd(ad, id) {
-  if (document.querySelector(`[data-ad-id="${id}"]`)) return;
+// 🎠 Auto-Slide Banner Carousel
+function startBannerCarousel() {
+  const container = document.getElementById('banner-ad-container');
+  if (!container || bannerAdsQueue.length === 0) return;
 
-  if (ad.type === 'banner') {
-    renderBannerAd(ad, id);
-  } else if (ad.type === 'anchor') {
-    renderAnchorAd(ad, id);
+  // Clear existing interval
+  if (bannerSlideInterval) clearInterval(bannerSlideInterval);
+
+  // Show first ad immediately
+  showBannerAd(bannerAdsQueue[0], bannerAdsQueue[0].id);
+
+  // Auto-slide every 5 seconds if multiple ads
+  if (bannerAdsQueue.length > 1) {
+    bannerSlideInterval = setInterval(() => {
+      currentBannerIndex = (currentBannerIndex + 1) % bannerAdsQueue.length;
+      showBannerAd(bannerAdsQueue[currentBannerIndex], bannerAdsQueue[currentBannerIndex].id);
+    }, 5000);
   }
 }
 
-// 🎨 Professional Banner Ad (Logo | Description | Button)
-function renderBannerAd(ad, id) {
+function showBannerAd(ad, id) {
   const container = document.getElementById('banner-ad-container');
   if (!container) return;
-  
+
+  // Skip if already showing this ad
+  if (container.querySelector(`[data-ad-id="${id}"]`)) return;
+
   container.innerHTML = `
     <style>
       .pro-banner {
@@ -67,6 +115,11 @@ function renderBannerAd(ad, id) {
         gap: 20px;
         box-shadow: 0 4px 15px rgba(0,0,0,0.08);
         transition: transform 0.3s, box-shadow 0.3s;
+        animation: fadeIn 0.4s ease;
+      }
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
       }
       .pro-banner:hover {
         transform: translateY(-2px);
@@ -111,6 +164,25 @@ function renderBannerAd(ad, id) {
         transform: translateY(-1px);
         box-shadow: 0 4px 12px rgba(0,123,255,0.4);
       }
+      /* Carousel indicators */
+      .banner-indicators {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        margin-top: 15px;
+      }
+      .indicator {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #ccc;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+      .indicator.active {
+        background: #007bff;
+        transform: scale(1.2);
+      }
       /* Mobile Responsive */
       @media (max-width: 768px) {
         .pro-banner {
@@ -129,6 +201,9 @@ function renderBannerAd(ad, id) {
         .pro-banner-btn {
           padding: 8px 20px;
           font-size: 14px;
+        }
+        .banner-indicators {
+          margin-top: 10px;
         }
       }
       @media (max-width: 480px) {
@@ -153,13 +228,39 @@ function renderBannerAd(ad, id) {
           ${ad.buttonText || 'Learn More'}
         </a>
       </div>
-    </div>`;
+    </div>
+    ${bannerAdsQueue.length > 1 ? `
+      <div class="banner-indicators">
+        ${bannerAdsQueue.map((_, idx) => 
+          `<div class="indicator ${idx === currentBannerIndex ? 'active' : ''}" 
+                onclick="jumpToBanner(${idx})"></div>`
+        ).join('')}
+      </div>
+    ` : ''}`;
 
+  // Setup click tracking
   setupAdTracking(id, ad.buttonUrl);
+  
+  // Track view (only once per page load)
   trackViewOnce(id);
 }
 
-// 📍 Professional Anchor Ad (Collapsible with Arrow)
+// Jump to specific banner slide
+window.jumpToBanner = function(index) {
+  if (bannerSlideInterval) clearInterval(bannerSlideInterval);
+  currentBannerIndex = index;
+  showBannerAd(bannerAdsQueue[index], bannerAdsQueue[index].id);
+  
+  // Restart auto-slide
+  if (bannerAdsQueue.length > 1) {
+    bannerSlideInterval = setInterval(() => {
+      currentBannerIndex = (currentBannerIndex + 1) % bannerAdsQueue.length;
+      showBannerAd(bannerAdsQueue[currentBannerIndex], bannerAdsQueue[currentBannerIndex].id);
+    }, 5000);
+  }
+};
+
+// 📍 Professional Anchor Ad (Desktop: Arrow Left-Top, Mobile: Auto-hide)
 function renderAnchorAd(ad, id) {
   const container = document.getElementById('anchor-ad-container');
   if (!container) return;
@@ -191,10 +292,24 @@ function renderAnchorAd(ad, id) {
         box-shadow: 0 -2px 10px rgba(0,0,0,0.2);
         transition: all 0.3s;
         z-index: 10000;
+        display: flex;
+        align-items: center;
+        gap: 5px;
       }
       .pro-anchor-toggle:hover {
         background: linear-gradient(135deg, #218838 0%, #1e7e34 100%);
         transform: translateY(-2px);
+      }
+      .pro-anchor-toggle .arrow-text {
+        font-size: 11px;
+        font-weight: 500;
+        display: none;
+      }
+      /* Desktop: Show arrow text */
+      @media (min-width: 769px) {
+        .pro-anchor-toggle .arrow-text {
+          display: inline;
+        }
       }
       .pro-anchor {
         background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
@@ -254,7 +369,10 @@ function renderAnchorAd(ad, id) {
       }
     </style>
     <div class="pro-anchor-wrapper" id="anchor-${id}">
-      <button class="pro-anchor-toggle" onclick="toggleAnchor('${id}')">▼</button>
+      <button class="pro-anchor-toggle" onclick="toggleAnchor('${id}')">
+        <span class="arrow-text">▼ Ad</span>
+        <span style="font-size:16px;">▼</span>
+      </button>
       <div class="pro-anchor">
         <img src="${ad.imageUrl}" alt="Ad" class="pro-anchor-logo">
         <span class="pro-anchor-text">${ad.description}</span>
@@ -267,7 +385,7 @@ function renderAnchorAd(ad, id) {
 
   // Store anchor state
   window.anchorStates = window.anchorStates || {};
-  window.anchorStates[id] = false; // false = expanded, true = collapsed
+  window.anchorStates[id] = false;
 
   setupAdTracking(id, ad.buttonUrl);
   trackViewOnce(id);
@@ -281,12 +399,10 @@ window.toggleAnchor = function(id) {
   
   if (window.anchorStates[id]) {
     wrapper.classList.add('collapsed');
-    toggle.innerHTML = '▲';
-    toggle.title = 'Show Ad';
+    toggle.innerHTML = '<span class="arrow-text">▲ Show</span><span style="font-size:16px;">▲</span>';
   } else {
     wrapper.classList.remove('collapsed');
-    toggle.innerHTML = '▼';
-    toggle.title = 'Hide Ad';
+    toggle.innerHTML = '<span class="arrow-text">▼ Ad</span><span style="font-size:16px;">▼</span>';
   }
 };
 
