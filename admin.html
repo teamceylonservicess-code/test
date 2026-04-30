@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ad Manager - Admin Panel</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 10px;
+      padding: 30px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    }
+    h1 { color: #333; margin-bottom: 10px; }
+    h2 { color: #667eea; margin: 30px 0 15px 0; border-bottom: 2px solid #667eea; padding-bottom: 10px; }
+    .form-group { margin: 15px 0; }
+    label { display: block; margin-bottom: 5px; font-weight: 600; color: #555; }
+    input, select {
+      width: 100%;
+      padding: 10px;
+      border: 2px solid #ddd;
+      border-radius: 5px;
+      font-size: 14px;
+    }
+    input:focus, select:focus {
+      border-color: #667eea;
+      outline: none;
+    }
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      margin: 5px;
+      transition: all 0.3s;
+    }
+    .btn-primary { background: #667eea; color: white; }
+    .btn-primary:hover { background: #5568d3; transform: translateY(-2px); }
+    .btn-danger { background: #dc3545; color: white; }
+    .btn-danger:hover { background: #c82333; }
+    .btn-warning { background: #ffc107; color: #333; }
+    .btn-warning:hover { background: #e0a800; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      background: white;
+    }
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+    th {
+      background: #667eea;
+      color: white;
+      font-weight: 600;
+    }
+    tr:hover { background: #f8f9fa; }
+    .status-active { color: #28a745; font-weight: bold; }
+    .status-paused { color: #dc3545; font-weight: bold; }
+    .ad-thumb { width: 60px; height: 40px; object-fit: cover; border-radius: 3px; }
+    .stats-box {
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-top: 15px;
+    }
+    .stat-card {
+      background: white;
+      padding: 15px;
+      border-radius: 5px;
+      text-align: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .stat-value { font-size: 24px; font-weight: bold; color: #667eea; }
+    .stat-label { color: #666; font-size: 14px; margin-top: 5px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎯 Ad Manager Dashboard</h1>
+    <p style="color: #666; margin-bottom: 20px;">Manage your ads and track performance</p>
+
+    <!-- Add New Ad Form -->
+    <h2>➕ Add New Advertisement</h2>
+    <div class="form-group">
+      <label>Ad Type:</label>
+      <select id="adType">
+        <option value="banner">Banner Ad (Top/Middle of page)</option>
+        <option value="anchor">Anchor Ad (Fixed at bottom)</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Image URL:</label>
+      <input type="text" id="imageUrl" placeholder="https://example.com/ad-image.jpg">
+    </div>
+    <div class="form-group">
+      <label>Short Description:</label>
+      <input type="text" id="description" placeholder="Brief description of the ad">
+    </div>
+    <div class="form-group">
+      <label>Button Text:</label>
+      <input type="text" id="buttonText" placeholder="e.g., Shop Now, Learn More">
+    </div>
+    <div class="form-group">
+      <label>Button Link (URL):</label>
+      <input type="text" id="buttonUrl" placeholder="https://example.com">
+    </div>
+    <button class="btn btn-primary" onclick="addAd()">📢 Add Advertisement</button>
+
+    <!-- Statistics Overview -->
+    <h2>📊 Overall Statistics</h2>
+    <div class="stats-box">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-value" id="totalAds">0</div>
+          <div class="stat-label">Total Ads</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="activeAds">0</div>
+          <div class="stat-label">Active Ads</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="totalViews">0</div>
+          <div class="stat-label">Total Views</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="totalClicks">0</div>
+          <div class="stat-label">Total Clicks</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ads List -->
+    <h2>📋 All Advertisements</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Image</th>
+          <th>Description</th>
+          <th>Total Views</th>
+          <th>Total Clicks</th>
+          <th>Today Views</th>
+          <th>Today Clicks</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="adsTableBody">
+        <tr><td colspan="9" style="text-align:center;">Loading...</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  
+  <script>
+    // Firebase Configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyBuafsG2a7I5WRTcwvP2CgNv452L4BzHls",
+      authDomain: "learny-ec06f.firebaseapp.com",
+      projectId: "learny-ec06f",
+      storageBucket: "learny-ec06f.firebasestorage.app",
+      messagingSenderId: "65568577957",
+      appId: "1:65568577957:web:ef9f6dae41aeec20d7b04c",
+      measurementId: "G-MSYGVV8LBJ"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const today = new Date().toISOString().split('T')[0];
+
+    // Add new ad
+    async function addAd() {
+      const type = document.getElementById('adType').value;
+      const imageUrl = document.getElementById('imageUrl').value;
+      const description = document.getElementById('description').value;
+      const buttonText = document.getElementById('buttonText').value || 'Click Here';
+      const buttonUrl = document.getElementById('buttonUrl').value;
+
+      if (!imageUrl || !description || !buttonUrl) {
+        alert('Please fill in all required fields!');
+        return;
+      }
+
+      try {
+        await db.collection('ads').add({
+          type: type,
+          imageUrl: imageUrl,
+          description: description,
+          buttonText: buttonText,
+          buttonUrl: buttonUrl,
+          active: true,
+          totalViews: 0,
+          totalClicks: 0,
+          dailyStats: {
+            [today]: { views: 0, clicks: 0 }
+          },
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        
+        alert('✅ Ad added successfully!');
+        // Clear form
+        document.getElementById('imageUrl').value = '';
+        document.getElementById('description').value = '';
+        document.getElementById('buttonText').value = '';
+        document.getElementById('buttonUrl').value = '';
+      } catch (error) {
+        alert('Error adding ad: ' + error.message);
+      }
+    }
+
+    // Toggle ad active/pause
+    async function toggleAd(id, currentStatus) {
+      try {
+        await db.collection('ads').doc(id).update({
+          active: !currentStatus
+        });
+      } catch (error) {
+        console.error('Error toggling ad:', error);
+      }
+    }
+
+    // Delete ad
+    async function deleteAd(id) {
+      if (confirm('Are you sure you want to delete this ad?')) {
+        try {
+          await db.collection('ads').doc(id).delete();
+        } catch (error) {
+          console.error('Error deleting ad:', error);
+        }
+      }
+    }
+
+    // Load and display all ads
+    db.collection('ads').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
+      const tbody = document.getElementById('adsTableBody');
+      let totalViews = 0;
+      let totalClicks = 0;
+      let activeCount = 0;
+
+      if (snapshot.empty) {
+        tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;">No ads yet. Add your first ad above!</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = '';
+      snapshot.forEach(doc => {
+        const ad = doc.data();
+        totalViews += (ad.totalViews || 0);
+        totalClicks += (ad.totalClicks || 0);
+        if (ad.active) activeCount++;
+
+        const todayStats = ad.dailyStats?.[today] || { views: 0, clicks: 0 };
+        
+        const row = `
+          <tr>
+            <td>${ad.type.toUpperCase()}</td>
+            <td><img src="${ad.imageUrl}" class="ad-thumb" alt="Ad"></td>
+            <td>${ad.description}</td>
+            <td><strong>${ad.totalViews || 0}</strong></td>
+            <td><strong>${ad.totalClicks || 0}</strong></td>
+            <td>${todayStats.views}</td>
+            <td>${todayStats.clicks}</td>
+            <td class="${ad.active ? 'status-active' : 'status-paused'}">
+              ${ad.active ? '✓ Active' : '✗ Paused'}
+            </td>
+            <td>
+              <button class="btn btn-warning" onclick="toggleAd('${doc.id}', ${ad.active})">
+                ${ad.active ? '⏸ Pause' : '▶ Activate'}
+              </button>
+              <button class="btn btn-danger" onclick="deleteAd('${doc.id}')">🗑 Delete</button>
+            </td>
+          </tr>
+        `;
+        tbody.innerHTML += row;
+      });
+
+      // Update stats
+      document.getElementById('totalAds').textContent = snapshot.size;
+      document.getElementById('activeAds').textContent = activeCount;
+      document.getElementById('totalViews').textContent = totalViews;
+      document.getElementById('totalClicks').textContent = totalClicks;
+    });
+  </script>
+</body>
+</html>
