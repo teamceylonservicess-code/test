@@ -1,4 +1,4 @@
-// ads.js - Professional Ad System v6.5 (Offer Matches Pro Banner Dimensions)
+// ads.js - Professional Ad System v6.6 (Offer with Close Button)
 // =====================================
 
 const firebaseConfig = {
@@ -132,7 +132,7 @@ window.toggleInfoTooltip = function() {
   tooltip.style.transform = isVisible ? 'translateY(8px)' : 'translateY(0)';
 };
 
-//  Premium Offer Container (EXACT Match to Pro Banner Size)
+//  Premium Offer Container (With Close Button)
 function renderPremiumOffer(offer) {
   const container = document.getElementById('offer-ad-container');
   if (!container) return;
@@ -154,29 +154,54 @@ function renderPremiumOffer(offer) {
     const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
     const seconds = Math.floor((diff % (1000 * 60)) / 1000);
     
-    // Exact match to .pro-banner styles
     container.innerHTML = `
       <style>
         .offer-banner {
           background: #ffffff;
-          border: 1px solid #e5e7eb; /* Same as pro-banner */
-          border-left: 4px solid #f59e0b; /* Premium accent */
-          border-radius: 8px; /* Same as pro-banner */
-          padding: 16px; /* Same as pro-banner */
+          border: 1px solid #e5e7eb;
+          border-left: 4px solid #f59e0b;
+          border-radius: 8px;
+          padding: 16px 40px 16px 16px; /* Extra right padding for close button */
           margin: 20px auto;
-          max-width: 800px; /* Same as pro-banner */
+          max-width: 800px;
           width: 100%;
           box-sizing: border-box;
           display: flex;
           align-items: center;
           justify-content: space-between;
-          gap: 16px; /* Same as pro-banner */
-          box-shadow: 0 2px 6px rgba(0,0,0,0.04); /* Same as pro-banner */
+          gap: 16px;
+          box-shadow: 0 2px 6px rgba(0,0,0,0.04);
           animation: offerFadeIn 0.3s ease;
           position: relative;
           overflow: hidden;
         }
         @keyframes offerFadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .offer-close-btn {
+          position: absolute;
+          top: 10px;
+          right: 12px;
+          background: #f3f4f6;
+          border: none;
+          color: #6b7280;
+          width: 24px;
+          height: 24px;
+          border-radius: 50%;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 16px;
+          font-weight: bold;
+          transition: all 0.2s;
+          line-height: 1;
+          z-index: 2;
+        }
+        .offer-close-btn:hover {
+          background: #e5e7eb;
+          color: #374151;
+          transform: scale(1.05);
+        }
         
         .offer-icon-box {
           width: 48px; height: 48px; background: #fffbeb; border: 1px solid #fde68a;
@@ -207,7 +232,8 @@ function renderPremiumOffer(offer) {
         .offer-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 8px rgba(245,158,11,0.3); }
         
         @media (max-width: 768px) {
-          .offer-banner { flex-direction: column; text-align: center; padding: 12px; margin: 15px 10px; gap: 12px; border-left: none; border-top: 4px solid #f59e0b; }
+          .offer-banner { flex-direction: column; text-align: center; padding: 16px 40px 12px 12px; margin: 15px 10px; gap: 12px; border-left: none; border-top: 4px solid #f59e0b; }
+          .offer-close-btn { top: 8px; right: 8px; }
           .offer-icon-box { display: none; }
           .offer-info { align-items: center; }
           .offer-title { justify-content: center; }
@@ -218,6 +244,7 @@ function renderPremiumOffer(offer) {
         }
       </style>
       <div class="offer-banner">
+        <button class="offer-close-btn" onclick="this.closest('#offer-ad-container').innerHTML=''">&times;</button>
         <div class="offer-icon-box"><i class="fas fa-crown"></i></div>
         <div class="offer-info">
           <p class="offer-title">Premium Upgrade <span class="offer-badge">LIMITED</span></p>
@@ -241,7 +268,7 @@ function renderPremiumOffer(offer) {
   offerInterval = setInterval(updateCountdown, 1000);
 }
 
-// 📍 Anchor Ad
+//  Anchor Ad
 function renderAnchorAd(ad, id) {
   const container = document.getElementById('anchor-ad-container');
   if (!container) return;
