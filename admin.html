@@ -101,7 +101,7 @@
       <div class="stats-grid">
         <div class="stat-card"><div class="stat-value" id="totalAds">0</div><div class="stat-label">Total Ads</div></div>
         <div class="stat-card"><div class="stat-value" id="activeAds">0</div><div class="stat-label">Active Ads</div></div>
-        <div class="stat-card"><div class="stat-value" id="todayViews">0</div><div class="stat-label">Today's Views</div></div>
+        <div class="stat-card"><div class="stat-value" id="todayViews">0</div><div class="stat-label">Total Views</div></div>
         <div class="stat-card"><div class="stat-value" id="todayClicks">0</div><div class="stat-label">Today's Clicks</div></div>
         <div class="stat-card"><div class="stat-value" id="avgCTR">0%</div><div class="stat-label">Avg CTR</div></div>
       </div>
@@ -255,7 +255,7 @@
 
       document.getElementById('totalAds').textContent = snapshot.size;
       document.getElementById('activeAds').textContent = aC;
-      document.getElementById('todayViews').textContent = dV;
+      document.getElementById('todayViews').textContent = tV;
       document.getElementById('todayClicks').textContent = dC;
       document.getElementById('avgCTR').textContent = ctr(tV,tC);
     });
